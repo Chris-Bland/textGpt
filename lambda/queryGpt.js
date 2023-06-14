@@ -2,25 +2,41 @@ const AWS = require('aws-sdk');
 const sqs = new AWS.SQS();
 
 exports.handler = async (event) => {
-  event.Records.forEach(async (record) => {
-    const { requestBody } = JSON.parse(record.body);
-      
-    console.log(`QueryGPT -- RequestBody from SQS: ${requestBody}`);
-
-    const params = {
-      MessageBody: JSON.stringify({requestBody}),
-      QueueUrl: process.env.SEND_SMS_QUEUE_URL 
-    };
+    console.log(`QueryGPT -- RequestBody from SQS: ${JSON.stringify(event)}`);
     
-    try {
-      console.log(`QueryGPT -- BEFORE MESSAGE SEND`);
-      await sqs.sendMessage(params).promise();
-      console.log(`QueryGPT -- AFTER MESSAGE SEND`);
-    } catch (error) {
-      console.error(`QueryGPT -- Failed to send message: ${error}`);
+    for (const record of event.Records) {
+        const { to, from, body } = JSON.parse(record.body);
+        
+        console.log(`QueryGPT -- RequestBody from SQS: ${to} + ${from} + ${body}`);
+
+        const params = {
+            MessageBody: JSON.stringify(record.body),
+            QueueUrl: process.env.SEND_SMS_QUEUE_URL 
+        };
+        
+        try {
+            console.log(`QueryGPT -- BEFORE MESSAGE SEND`);
+            await sqs.sendMessage(params).promise();
+            console.log(`QueryGPT -- AFTER MESSAGE SEND`);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    message: `Successfully put message on queue:  ${JSON.stringify(record.body)}`
+                }),
+            };
+        } catch (error) {
+            console.error(`QueryGPT -- Failed to send message: ${error}`);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    error: 'Failed to send message',
+                }),
+            };
+        }
     }
-  });
 };
+
 
 
 /*

@@ -37,6 +37,6 @@ function parseStringValues(requestBody) {
     const body = parsedBody.get("Body");
     const to = parsedBody.get("To");
     const from = parsedBody.get("From");
-  
+  console.log(`to: ${to} from: ${from}  body: ${body} -- `)
     return { body, to, from };
   }
