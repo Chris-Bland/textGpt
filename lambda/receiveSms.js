@@ -15,7 +15,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Successfully received message'
+        message: `Successfully put message on queue:  ${JSON.stringify(requestBody)}`
       }),
     };
   } catch (error) {
