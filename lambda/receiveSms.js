@@ -6,7 +6,7 @@ exports.handler = async (event) => {
   const requestBody = event.body;
 
   const params = {
-    MessageBody: JSON.stringify(parseStringValues(event)),
+    MessageBody: JSON.stringify(parseStringValues(requestBody)),
     QueueUrl: process.env.SMS_QUEUE_URL 
   };
   
@@ -31,12 +31,12 @@ exports.handler = async (event) => {
 };
 
 
-function parseStringValues(event) {
-    const params = new URLSearchParams(event);
+function parseStringValues(requestBody) {
+    const parsedBody = new URLSearchParams(requestBody);
   
-    const body = params.get("Body");
-    const to = params.get("To");
-    const from = params.get("From");
+    const body = parsedBody.get("Body");
+    const to = parsedBody.get("To");
+    const from = parsedBody.get("From");
   
     return { body, to, from };
   }
