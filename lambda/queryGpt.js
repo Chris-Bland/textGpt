@@ -9,8 +9,11 @@ exports.handler = async (event) => {
         
         console.log(`QueryGPT -- RequestBody from SQS: ${to} + ${from} + ${body}`);
 
+        //simulate an openAI response:
+        const openAiResponse = "This is an openAI response. You are receiving wisdom straight from the AI's mouth. Or whatever it is we have. Yup";
+        const message = [to, from, openAiResponse].join("|||");
         const params = {
-            MessageBody: JSON.stringify(record.body),
+            MessageBody: JSON.stringify(message),
             QueueUrl: process.env.SEND_SMS_QUEUE_URL 
         };
         
