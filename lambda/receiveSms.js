@@ -5,7 +5,7 @@ exports.handler = async (event) => {
   const requestBody = event.body;
     //clean data here
     //Get and send only Body, To, and From
-    const testParams = new URLSearchParams(str);
+    const testParams = new URLSearchParams(requestBody);
 
     const body = testParams.get("Body");
     const to = testParams.get("To");
