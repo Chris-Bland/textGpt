@@ -3,7 +3,7 @@ const sqs = new AWS.SQS();
 
 exports.handler = async (event) => {
   const requestBody = event.body;
-
+  console.log(`ReceiveSMS -- RequestBody: ${JSON.stringify(requestBody)}`);
   const params = {
     MessageBody: JSON.stringify({requestBody}),
     QueueUrl: process.env.SMS_QUEUE_URL 
@@ -11,7 +11,7 @@ exports.handler = async (event) => {
   
   try {
     await sqs.sendMessage(params).promise();
-    console.log(`ReceiveSMS -- Sent message to SQS: ${params}`);
+    console.log(`ReceiveSMS -- Sent message to SQS: ${JSON.stringify(params)}`);
     return {
       statusCode: 200,
       body: JSON.stringify({

@@ -1,8 +1,7 @@
-exports.handler = async function(event) {
-    console.log(`SendSMS Lambda -- request: ${JSON.stringify(event, undefined, 2)}`);
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "text/plain" },
-      body: `You've hit send: ${event.path}\n`
-    };
+exports.handler = async (event) => {
+    event.Records.forEach(record => {
+      const { requestBody } = JSON.parse(record.body);
+      console.log(`SendSms -- RequestBody from SQS: ${requestBody}`);
+    });
   };
+  

@@ -11,26 +11,18 @@ export class TextGptStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Create the SQS queue
-    const smsQueue = new sqs.Queue(this, 'SmsQueue', {
-      visibilityTimeout: cdk.Duration.seconds(30) // Adjust as needed
-    });
-
-    // Lambdas:
+    //Lambdas:
     const receiveSms = new lambda.Function(this, 'ReceiveSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset('lambda'),
-      handler: 'receiveSms.handler',
-      environment: {
-        SMS_QUEUE_URL: smsQueue.queueUrl // Pass the SQS queue URL as an environment variable
-      }
+      handler: 'receiveSms.handler'
     });
 
-    // Grant receiveSms permissions to send messages to the SQS queue
-    receiveSms.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['sqs:SendMessage'],
-      resources: [smsQueue.queueArn]
-    }));
+    const sendSms = new lambda.Function(this, 'SendSmsHandler', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      code: lambda.Code.fromAsset('lambda'),
+      handler: 'sendSms.handler'
+    });
 
     const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
@@ -38,16 +30,30 @@ export class TextGptStack extends cdk.Stack {
       handler: 'queryGpt.handler'
     });
 
-    // Add the SQS queue as an event source for queryGpt
-    queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(smsQueue));
+    // Create the SQS queue for receiving SMS messages
+    const receiveSmsQueue = new sqs.Queue(this, 'ReceiveSmsQueue', {
+      visibilityTimeout: cdk.Duration.seconds(30) // Adjust as needed
+    });
 
-    // Grant queryGpt permissions to receive messages from the SQS queue
-    queryGpt.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['sqs:ReceiveMessage', 'sqs:DeleteMessage', 'sqs:GetQueueAttributes'],
-      resources: [smsQueue.queueArn]
-    }));
+    // Create the SQS queue for sending SMS messages
+    const sendSmsQueue = new sqs.Queue(this, 'SendSmsQueue', {
+      visibilityTimeout: cdk.Duration.seconds(30) // Adjust as needed
+    });
 
-    // API Gateway for receive
+    // Set up the environment variables for the receiveSms and queryGpt functions
+    receiveSms.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
+    queryGpt.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
+    queryGpt.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
+
+    // Allow the receiveSms and queryGpt functions to send messages to their respective queues
+    receiveSmsQueue.grantSendMessages(receiveSms);
+    sendSmsQueue.grantSendMessages(queryGpt);
+
+    // Set up the event source mappings for the queryGpt and sendSms functions
+    queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(receiveSmsQueue));
+    sendSms.addEventSource(new lambdaEventSources.SqsEventSource(sendSmsQueue));
+
+    //API Gateway for receive. send/query do not need
     new apigw.LambdaRestApi(this, 'Endpoint', {
       handler: receiveSms
     });
