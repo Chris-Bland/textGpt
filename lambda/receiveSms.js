@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const sqs = new AWS.SQS();
+// const utils = require('../bin/utils');
 
 exports.handler = async (event) => {
   const requestBody = event.body;
