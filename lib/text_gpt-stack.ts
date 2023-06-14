@@ -42,6 +42,7 @@ export class TextGptStack extends cdk.Stack {
     receiveSms.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
     queryGpt.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
     queryGpt.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
+    sendSms.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
 
 // Allow the receiveSms and queryGpt functions to send messages to their respective queues
     receiveSmsQueue.grantSendMessages(receiveSms);

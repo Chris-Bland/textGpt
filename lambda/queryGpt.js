@@ -8,13 +8,14 @@ exports.handler = async (event) => {
     console.log(`QueryGPT -- RequestBody from SQS: ${requestBody}`);
 
     const params = {
-      MessageBody: `QUERY BODY: ${JSON.stringify({requestBody})}`,
+      MessageBody: JSON.stringify({requestBody}),
       QueueUrl: process.env.SEND_SMS_QUEUE_URL 
     };
     
     try {
+      console.log(`QueryGPT -- BEFORE MESSAGE SEND`);
       await sqs.sendMessage(params).promise();
-      console.log(`QueryGPT -- Sent message to SendSms SQS: ${params}`);
+      console.log(`QueryGPT -- AFTER MESSAGE SEND`);
     } catch (error) {
       console.error(`QueryGPT -- Failed to send message: ${error}`);
     }

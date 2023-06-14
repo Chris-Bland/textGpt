@@ -3,7 +3,17 @@ const sqs = new AWS.SQS();
 
 exports.handler = async (event) => {
   const requestBody = event.body;
-  console.log(`ReceiveSMS -- RequestBody: ${JSON.stringify(requestBody)}`);
+    //clean data here
+    //Get and send only Body, To, and From
+    const testParams = new URLSearchParams(str);
+
+    const body = testParams.get("Body");
+    const to = testParams.get("To");
+    const from = testParams.get("From");
+    console.log(`ReceiveSMS -- Body: ${body}`);
+    console.log(`ReceiveSMS -- To: ${JSON.stringify(to)}`);
+    console.log(`ReceiveSMS -- From: ${JSON.stringify(from)}`);
+  
   const params = {
     MessageBody: JSON.stringify({requestBody}),
     QueueUrl: process.env.SMS_QUEUE_URL 
