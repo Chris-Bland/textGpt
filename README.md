@@ -20,23 +20,20 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 ## Setup:
 
 ### Twilio:
-Sign up for a Twilio account and go to the console. 
-Get a phone number (take note of it)
-In the Twilio console, navigate to Phone Numbers -> Manage -> Active Numbers. 
-Under Messaging Configuration, find the "A call comes in" field and ensure it's set to "Webhook".
-Add your receiveSms lambda url to this field.
-
-Find your AccountSid and AuthToken values and add them as the value for the twilioAccountSid and twilioAuthToken keys in AWS SecretsManager
+1. Sign up for a Twilio account and go to the console. 
+2. Get a phone number (take note of it)
+3. **Add lambda webhook:** In the Twilio console, navigate to Phone Numbers -> Manage -> Active Numbers. Under Messaging Configuration, find the "A call comes in" field and ensure it's set to "Webhook". Add your receiveSms lambda url to this field.
 
 ### AWS:
-Create a secret called `TextGptSecrets`. Add values for `twilioAccountSid`, `twilioAuthToken`, and `openAiApiKey`.
-If you have issues with lambdas not being able to get secrets, make sure the IAM resource is the full secret name. Sometimes dropped the ending.
+1. Create a secret called `ChatGPTSecrets`. 
+2. Add values for `twilioAccountSid`, `twilioAuthToken`, and `openAiApiKey` using the twilio config values from the console. For OpenAI, generate a new secretApiKey in the account settings panel.
+3. If you have issues with lambdas not being able to get secrets, make sure the IAM resource is the full secret name. Sometimes dropped the ending.
 
 ### IAC:
-Toggle timeouts as needed. All IAM policies and Roles are setup in the stack.
+1. Toggle timeouts as needed. 
+2. All IAM policies and Roles are setup in the stack.
 
 ## To run:
-
 ### npm install
 ### cdk build
 ### cdk deploy
