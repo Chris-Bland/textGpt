@@ -5,8 +5,8 @@ TextGPT is a project that brings together modern Conversational AI and tradition
 The system is built using the AWS Cloud Development Kit (CDK) and consists of several AWS Lambdas, each serving a specific function:
 
 1. **receiveSms:** This Lambda function is triggered when an SMS message is received. It parses the message and places it into an SQS queue for further processing.
-2. **queryGpt:** This function retrieves messages from the SQS queue and sends the content of the SMS to the ChatGPT model for processing. The AI response is then placed back into an SQS queue.
-3. **sendSms:** This Lambda function retrieves the AI response from the SQS queue and sends it as a reply SMS message.
+2. **queryGpt:** This function retrieves messages from the SQS queue, builds a prompt, and sends the prompt to the ChatGPT model for processing. The AI response is then placed back into an SQS queue.
+3. **sendSms:** This Lambda function retrieves the AI response from the SQS queue and sends it as a reply SMS message using the Twilio api.
 
 
 
