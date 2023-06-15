@@ -16,25 +16,24 @@ async function getSecret(secretName) {
 
 exports.handler = async (event) => {
   try {
-    console.log(`sendSms -- Calling Secrets Manager`);
+    //get secrets for Twilio call
     const secrets = await getSecret('ChatGPTSecrets');
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets;
-    console.log(`sendSms -- tokens: ${JSON.stringify(TWILIO_ACCOUNT_SID)}`);
-    console.log(`sendSms -- tokens: ${JSON.stringify(TWILIO_AUTH_TOKEN)}`);
 
-  //   const client = twilio(accountSid, authToken);
-  //   console.log(`sendSms -- tokens: ${JSON.stringify(client)}`);
-  //   console.log(`sendSms -- event from QueryGPT sqs: ${JSON.stringify(event)}`);
-  //   for (const record of event.Records) {
-  //     const message = JSON.parse(record.body);
-  //     const [to, from, body] = message.split("|||");
-  //     console.log(`SendSms -- Body from SQS: ${body}`);
+    //create client, parse to/from/body, send the text
+    const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+    console.log(`sendSms -- Client Created`);
+    for (const record of event.Records) {
+      console.log(`sendSms -- Record Processing`);
+      const message = JSON.parse(record.body);
+      const [to, from, body] = message.split("|||");
 
-  //     client.messages
-  //       .create({ body, from, to })
-  //       .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
-  //       .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
-  //   }
+      console.log(`sendSms -- Building and Sending Text`);
+      client.messages
+        .create({ body, from, to })
+        .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
+        .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
+    }
   } catch (error) {
     console.error("SendSMS -- " + error);
     throw error;
