@@ -24,10 +24,12 @@ exports.handler = async (event) => {
     for (const record of event.Records) {
       const message = JSON.parse(record.body);
       const [to, from, body] = message.split("|||");
-
+      console.log(`SendSMS -- Body: ${body}`)
+      if (body){
       await client.messages
       .create({body: body, from: to, to: from})
       .then(message => console.log(message.sid));
+    } 
     }
   } catch (error) {
     console.error("SendSMS -- " + error);

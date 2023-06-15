@@ -7,8 +7,6 @@ import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 
 export class TextGptStack extends cdk.Stack {
@@ -23,25 +21,27 @@ export class TextGptStack extends cdk.Stack {
       handler: 'receiveSms.handler'
     });
 
-    const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
-      code: lambda.Code.fromAsset('lambda'),
-      handler: 'queryGpt.handler',
-    });
-
-    //increase memory and timeout for openai request
-    // const queryGpt = new NodejsFunction(this, 'QueryGptHandler', {
+    // const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
     //   runtime: lambda.Runtime.NODEJS_16_X,
     //   architecture: lambda.Architecture.ARM_64,
     //   memorySize: 256,
-    //   timeout: cdk.Duration.seconds(10),  
-    //   entry: './lambda/queryGpt.js', 
-    //   handler: 'handler',
-    //   bundling: {
-    //     nodeModules: ['openai'], 
-    //   },
+    //   timeout: cdk.Duration.seconds(30),  
+    //   code: lambda.Code.fromAsset('lambda'),
+    //   handler: 'queryGpt.handler',
     // });
+
+    //increase memory and timeout for openai request
+    const queryGpt = new NodejsFunction(this, 'QueryGptHandler', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      architecture: lambda.Architecture.ARM_64,
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),  
+      entry: './lambda/queryGpt.js', 
+      handler: 'handler',
+      bundling: {
+        nodeModules: ['openai'], 
+      },
+    });
 
     //increase memory and timeout for Twilio create
     const sendSms = new NodejsFunction(this, 'SendSmsHandler', {
