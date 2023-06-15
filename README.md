@@ -10,7 +10,10 @@ Get a phone number (take note of it)
 In the Twilio console, navigate to Phone Numbers -> Manage -> Active Numbers. 
 Under Messaging Configuration, find the "A call comes in" field and ensure it's set to "Webhook".
 Add your receiveSms lambda url to this field.
-Save
+
+Find your AccountSid and AuthToken values and add them as the value for the twilioAccountSid and twilioAuthToken keys in AWS SecretsManager
 
 ### AWS:
+Create secrets for twilioAccountSid and twilioAuthToken. Take not of the Secret Name and replace in the stack.
+
 ### IAC:
