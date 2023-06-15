@@ -7,7 +7,8 @@ import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 
 export class TextGptStack extends cdk.Stack {
@@ -22,6 +23,13 @@ export class TextGptStack extends cdk.Stack {
       handler: 'receiveSms.handler'
     });
 
+    const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      architecture: lambda.Architecture.ARM_64,
+      code: lambda.Code.fromAsset('lambda'),
+      handler: 'queryGpt.handler',
+    });
+
     const sendSms = new NodejsFunction(this, 'SendSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
       architecture: lambda.Architecture.ARM_64,
@@ -32,20 +40,13 @@ export class TextGptStack extends cdk.Stack {
       },
     });
 
-    const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
-      code: lambda.Code.fromAsset('lambda'),
-      handler: 'queryGpt.handler',
-    });
 
 //Secrets:
-    const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'prod/twilio');
-    
-    sendSms.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['secretsmanager:GetSecretValue'],
-      resources: [secret.secretArn],
-    }));
+  const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets');
+  sendSms.addToRolePolicy(new iam.PolicyStatement({
+    actions: ['secretsmanager:GetSecretValue'],
+    resources: [secret.secretArn],
+  }));
 
 //SQS
     const receiveSmsQueue = new sqs.Queue(this, 'ReceiveSmsQueue', {

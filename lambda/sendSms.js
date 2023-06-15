@@ -4,6 +4,7 @@ const twilio = require('twilio');
 
 async function getSecret(secretName) {
   const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise();
+  console.log(`sendSms -- DATA: ${JSON.stringify(data)}`);
 
   if ('SecretString' in data) {
     return JSON.parse(data.SecretString);
@@ -15,29 +16,27 @@ async function getSecret(secretName) {
 
 exports.handler = async (event) => {
   try {
-    console.log(`sendSms -- Startup`);
+    console.log(`sendSms -- Calling Secrets Manager`);
+    const secrets = await getSecret('ChatGPTSecrets');
+    const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets;
+    console.log(`sendSms -- tokens: ${JSON.stringify(TWILIO_ACCOUNT_SID)}`);
+    console.log(`sendSms -- tokens: ${JSON.stringify(TWILIO_AUTH_TOKEN)}`);
 
-    const secrets = await getSecret('MySecrets');
-    const { twilioAccountSid, twilioAuthToken } = secrets;
+  //   const client = twilio(accountSid, authToken);
+  //   console.log(`sendSms -- tokens: ${JSON.stringify(client)}`);
+  //   console.log(`sendSms -- event from QueryGPT sqs: ${JSON.stringify(event)}`);
+  //   for (const record of event.Records) {
+  //     const message = JSON.parse(record.body);
+  //     const [to, from, body] = message.split("|||");
+  //     console.log(`SendSms -- Body from SQS: ${body}`);
 
-    const client = twilio(twilioAccountSid, twilioAuthToken);
-
-    console.log(`sendSms -- event from QueryGPT sqs: ${JSON.stringify(event)}`);
-    for (const record of event.Records) {
-      const message = JSON.parse(record.body);
-      const [to, from, body] = message.split("|||");
-
-      console.log(`SendSms -- Body from SQS: ${body}`);
-      console.log(`SendSms -- To from SQS: ${to}`);
-      console.log(`SendSms -- From from SQS: ${from}`);
-
-      client.messages
-        .create({ body, from, to })
-        .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
-        .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
-    }
+  //     client.messages
+  //       .create({ body, from, to })
+  //       .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
+  //       .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
+  //   }
   } catch (error) {
-    console.error(error);
+    console.error("SendSMS -- " + error);
     throw error;
   }
 };
