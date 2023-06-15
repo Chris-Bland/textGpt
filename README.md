@@ -9,7 +9,8 @@ The queryGpt and sendSms lambas are bundled with their dependencies.
 Only the receiveSms lambda is setup through the ApiGateway.
 
 ## Current Architecture:
-[Blank diagram.pdf](https://github.com/c-bland/textGpt/files/11762162/Blank.diagram.pdf)
+
+![textGptArch](https://github.com/c-bland/textGpt/assets/27901095/ddfa85dd-caa7-4e3c-8dc5-c164ac19e9ae)
 
 ## Setup:
 
