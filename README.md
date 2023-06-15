@@ -11,7 +11,8 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 
 
 ## Example Usage (Using the "text-davinci-003" model):
-<img width="711" alt="Screenshot 2023-06-15 at 3 56 29 PM" src="https://github.com/c-bland/textGpt/assets/27901095/88c3a5ab-372c-4b25-a554-462aed4fa4b5">
+![image](https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24)
+
 
 ## Current Architecture:
 
