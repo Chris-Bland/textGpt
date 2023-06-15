@@ -28,12 +28,22 @@ exports.handler = async (event) => {
       const message = JSON.parse(record.body);
       const [to, from, body] = message.split("|||");
 
-      console.log(`sendSms -- Building and Sending Text`);
-      client.messages
-        .create({ body, from, to })
-        .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
-        .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
-    }
+      console.log(`sendSms -- Building and Sending Text with: To: ${to}, From: ${from}, Body: ${body}`);
+      await client.messages
+      .create({body: body, from: '+18449612720', to: '+18435573330'})
+      .then(message => console.log(message.sid));
+
+      console.log(`sendSms -- After sending`);
+
+    // client.messages
+    //   .create({
+    //     body: body,
+    //     from: to,
+    //     to: from
+    //   })
+    //   .then(message => console.log(`sendSms -- Message sent: ${message.sid}`))
+    //   .catch(error => console.error(`sendSms -- Failed to send message: ${error}`));
+        }
   } catch (error) {
     console.error("SendSMS -- " + error);
     throw error;
