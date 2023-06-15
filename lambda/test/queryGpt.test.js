@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const openai = require('openai');
 const queryGpt = require('../queryGpt.js');
+AWS.config.update({region: 'us-east-1'});
 
 jest.mock('aws-sdk', () => {
   return {

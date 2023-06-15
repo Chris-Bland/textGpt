@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const receiveSms = require('../receiveSms'); 
+AWS.config.update({region: 'us-east-1'});
 
 jest.mock('aws-sdk', () => {
   return {

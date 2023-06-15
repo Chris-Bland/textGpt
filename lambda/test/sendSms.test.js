@@ -1,7 +1,12 @@
-const AWS = require('aws-sdk-mock');
+const AWS = require('aws-sdk');
+const AWSMock = require('aws-sdk-mock');
 const lambda = require('../sendSms');
 const twilio = require('twilio');
 jest.mock('twilio');
+
+// Mock AWS config
+AWS.config.update = jest.fn();
+AWS.config.update({ region: 'us-east-1' });
 
 describe('SendSMS', () => {
   let getSecretValueMock;
@@ -9,7 +14,7 @@ describe('SendSMS', () => {
 
   beforeEach(() => {
     getSecretValueMock = jest.fn();
-    AWS.mock('SecretsManager', 'getSecretValue', getSecretValueMock);
+    AWSMock.mock('SecretsManager', 'getSecretValue', getSecretValueMock);
 
     twilioClientMock = {
       messages: {
@@ -20,7 +25,7 @@ describe('SendSMS', () => {
   });
 
   afterEach(() => {
-    AWS.restore('SecretsManager');
+    AWSMock.restore('SecretsManager');
     twilio.mockRestore();
   });
 
