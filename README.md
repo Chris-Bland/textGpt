@@ -1,6 +1,12 @@
 # TextGPT -- Bringing together modern Conversational AI and traditional Telephony 
 
-This project uses Twilio for the telephony provider. AWS CDK for the IAC. AWS microservices for the processing. GPT4 for the conversational AI
+This project uses Twilio for the telephony provider. AWS CDK for the IAC. AWS microservices for the processing. OpenAI for the conversational AI element.
+
+All AWS recoures are created through Infrastructure as code and defined in the stack. IAM roles are also setup in the stack.
+
+The queryGpt and sendSms lambas are bundled with their dependencies. 
+
+Only the receiveSms lambda is setup through the ApiGateway.
 
 ## Setup:
 
@@ -14,6 +20,15 @@ Add your receiveSms lambda url to this field.
 Find your AccountSid and AuthToken values and add them as the value for the twilioAccountSid and twilioAuthToken keys in AWS SecretsManager
 
 ### AWS:
-Create secrets for twilioAccountSid and twilioAuthToken. Take not of the Secret Name and replace in the stack.
+Create a secret called `TextGptSecrets`. Add values for `twilioAccountSid`, `twilioAuthToken`, and `openAiApiKey`.
+If you have issues with lambdas not being able to get secrets, make sure the IAM resource is the full secret name. Sometimes dropped the ending.
 
 ### IAC:
+Toggle timeouts as needed. All IAM policies and Roles are setup in the stack.
+
+## To run:
+
+### npm install
+### cdk build
+### cdk deploy
+

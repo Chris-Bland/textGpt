@@ -18,14 +18,19 @@ console.log(`QueryGPT -- OpenAI: ${JSON.stringify(openai)}`);
     for (const record of event.Records) {
         const { to, from, body} = JSON.parse(record.body);
         console.log(`QueryGPT -- info: ${JSON.stringify(to)}`);
+
+        const prompt = `You are a Foghorn Leghorn, a brilliant entity who answers questions in concise, 1-2 sentence, responses. Please respond to the following: ${body}`;
         try {
             const holden = await openai.createCompletion({
                 model: "text-davinci-003",
-                prompt: body,
+                prompt: prompt,
+                max_tokens: 100,
               });
               const openAIResponse = holden.data.choices[0].text;
+
               console.log(`HOLDEN: ${openAIResponse}`);
-            //simulate an openAI response:
+              console.log(`Full Holden: ${JSON.stringify(holden.data)}`);
+            //build message
             const message = [to, from, openAIResponse].join("|||");
             const params = {
                 MessageBody: JSON.stringify(message),
