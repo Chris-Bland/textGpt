@@ -27,7 +27,7 @@ exports.handler = async (event) => {
       console.log(`SendSMS -- Body: ${body}`)
       if (body){
       await client.messages
-      .create({body: body, from: to, to: from})
+      .create({body: body+'    --TextGeePT', from: to, to: from})
       .then(message => console.log(message.sid));
     } 
     }
