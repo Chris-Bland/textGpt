@@ -30,20 +30,41 @@ export class TextGptStack extends cdk.Stack {
       handler: 'queryGpt.handler',
     });
 
+    //increase memory and timeout for openai request
+    // const queryGpt = new NodejsFunction(this, 'QueryGptHandler', {
+    //   runtime: lambda.Runtime.NODEJS_16_X,
+    //   architecture: lambda.Architecture.ARM_64,
+    //   memorySize: 256,
+    //   timeout: cdk.Duration.seconds(10),  
+    //   entry: './lambda/queryGpt.js', 
+    //   handler: 'handler',
+    //   bundling: {
+    //     nodeModules: ['openai'], 
+    //   },
+    // });
+
+    //increase memory and timeout for Twilio create
     const sendSms = new NodejsFunction(this, 'SendSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
       architecture: lambda.Architecture.ARM_64,
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(10),  
       entry: './lambda/sendSms.js', 
       handler: 'handler',
       bundling: {
         nodeModules: ['twilio'], 
       },
+
     });
 
 
 //Secrets:
   const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets');
   sendSms.addToRolePolicy(new iam.PolicyStatement({
+    actions: ['secretsmanager:GetSecretValue'],
+    resources: [secret.secretArn],
+  }));
+  queryGpt.addToRolePolicy(new iam.PolicyStatement({
     actions: ['secretsmanager:GetSecretValue'],
     resources: [secret.secretArn],
   }));
