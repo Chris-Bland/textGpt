@@ -1,12 +1,14 @@
-# TextGPT -- Bringing together modern Conversational AI and traditional Telephony 
+# TextGPT
 
-This project uses Twilio for the telephony provider. AWS CDK for the IAC. AWS microservices for the processing. OpenAI for the conversational AI element.
+TextGPT is a project that brings together modern Conversational AI and traditional Telephony. It serves as a bridge between the Twilio telephony system and OpenAI's ChatGPT model, allowing SMS messages to be processed and responded to by the AI.
 
-All AWS recoures are created through Infrastructure as code and defined in the stack. IAM roles are also setup in the stack.
+The system is built using the AWS Cloud Development Kit (CDK) and consists of several AWS Lambdas, each serving a specific function:
 
-The queryGpt and sendSms lambas are bundled with their dependencies. 
+1. **receiveSms:** This Lambda function is triggered when an SMS message is received. It parses the message and places it into an SQS queue for further processing.
+2. **queryGpt:** This function retrieves messages from the SQS queue and sends the content of the SMS to the ChatGPT model for processing. The AI response is then placed back into an SQS queue.
+3. **sendSms:** This Lambda function retrieves the AI response from the SQS queue and sends it as a reply SMS message.
 
-Only the receiveSms lambda is setup through the ApiGateway.
+
 
 ## Example Usage (Using the "text-davinci-003" model):
 <img width="711" alt="Screenshot 2023-06-15 at 3 56 29 PM" src="https://github.com/c-bland/textGpt/assets/27901095/88c3a5ab-372c-4b25-a554-462aed4fa4b5">
