@@ -5,6 +5,7 @@ import * as apigw from 'aws-cdk-lib/aws-apigateway';
 // import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 
 export class TextGptStack extends cdk.Stack {
@@ -18,16 +19,20 @@ export class TextGptStack extends cdk.Stack {
       handler: 'receiveSms.handler'
     });
 
-    const sendSms = new lambda.Function(this, 'SendSmsHandler', {
+    const sendSms = new NodejsFunction(this, 'SendSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      code: lambda.Code.fromAsset('lambda'),
-      handler: 'sendSms.handler'
+      architecture: lambda.Architecture.ARM_64,
+      entry: './lambda/sendSms.js', 
+      handler: 'handler',
+      bundling: {
+        nodeModules: ['twilio'], 
+      },
     });
 
     const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset('lambda'),
-      handler: 'queryGpt.handler'
+      handler: 'queryGpt.handler',
     });
 
 //SQS
