@@ -8,7 +8,7 @@ The queryGpt and sendSms lambas are bundled with their dependencies.
 
 Only the receiveSms lambda is setup through the ApiGateway.
 
-## Example Usage (Using "text-davinci-003" as the model):
+## Example Usage (Using the "text-davinci-003" model):
 <img width="711" alt="Screenshot 2023-06-15 at 3 56 29 PM" src="https://github.com/c-bland/textGpt/assets/27901095/88c3a5ab-372c-4b25-a554-462aed4fa4b5">
 
 ## Current Architecture:
