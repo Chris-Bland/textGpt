@@ -17,8 +17,6 @@ exports.handler = async (event) => {
     //get secrets for Twilio call
     const secrets = await getSecret('ChatGPTSecrets');
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets;
-
-    //create client, parse to/from/body, send the text
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
     for (const record of event.Records) {
