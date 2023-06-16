@@ -21,15 +21,6 @@ export class TextGptStack extends cdk.Stack {
       handler: 'receiveSms.handler'
     });
 
-    // const queryGpt = new lambda.Function(this, 'QueryGptHandler', {
-    //   runtime: lambda.Runtime.NODEJS_16_X,
-    //   architecture: lambda.Architecture.ARM_64,
-    //   memorySize: 256,
-    //   timeout: cdk.Duration.seconds(30),  
-    //   code: lambda.Code.fromAsset('lambda'),
-    //   handler: 'queryGpt.handler',
-    // });
-
     //increase memory and timeout for openai request
     const queryGpt = new NodejsFunction(this, 'QueryGptHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
