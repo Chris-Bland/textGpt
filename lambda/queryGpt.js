@@ -12,20 +12,27 @@ const configuration = new Configuration({
   apiKey: OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-console.log(`QueryGPT -- OpenAI: ${JSON.stringify(openai)}`);
-
-
     for (const record of event.Records) {
         const { conversationId, to, from, body} = JSON.parse(record.body);
-
-        const prompt = `You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer.Please respond to the following: ${body}`;
         try {
-            const holden = await openai.createCompletion({
-                model: "text-davinci-003",
-                prompt: prompt,
-                max_tokens: 256,
-              });
-              const openAIResponse = holden.data.choices[0].text;
+          //Davinci createCompletion() call
+          // const holden = await openai.createCompletion({
+          //     model: "text-davinci-003",
+          //     prompt: prompt,
+          //     max_tokens: 256,
+          //     temperature: 0.2
+          //   });
+          // const openAIResponse = holden.data.choices[0].text;
+
+          //gpt-3.5-turbo createChatCompletion() call
+          const holden = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {role: "system", content: "You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response."},
+              {role: "user", content: body}],
+          });
+          console.log(JSON.stringify());
+          const openAIResponse = holden.data.choices[0].message.content;
 
             //build message
             const message = [conversationId, to, from, openAIResponse].join("|||");
