@@ -7,7 +7,6 @@ const { Configuration, OpenAIApi } = require("openai");
 exports.handler = async (event) => {
 const secrets = await getSecret('ChatGPTSecrets');
 const { OPENAI_API_KEY} = secrets;
-console.log(OPENAI_API_KEY);
 const configuration = new Configuration({
   apiKey: OPENAI_API_KEY,
 });
@@ -15,15 +14,7 @@ const openai = new OpenAIApi(configuration);
     for (const record of event.Records) {
         const { conversationId, to, from, body} = JSON.parse(record.body);
         try {
-          //Davinci createCompletion() call
-          // const holden = await openai.createCompletion({
-          //     model: "text-davinci-003",
-          //     prompt: prompt,
-          //     max_tokens: 256,
-          //     temperature: 0.2
-          //   });
-          // const openAIResponse = holden.data.choices[0].text;
-
+          
           //gpt-3.5-turbo createChatCompletion() call
           const holden = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
