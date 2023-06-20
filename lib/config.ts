@@ -15,7 +15,7 @@ export const envConfig = {
     sendSms: {
         memorySize: 256,
         timeout: 10,
-        entry: './lambda/sendSms.js',
+        entry: './lambda/sendSms.ts',
         bundling: {
             nodeModules: ['twilio']
         }
