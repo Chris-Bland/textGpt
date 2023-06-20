@@ -8,7 +8,9 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 2. **queryGpt:** This function retrieves messages from the SQS queue, builds a prompt, and sends the prompt to the ChatGPT model for processing. The AI response is then placed back into an SQS queue.
 3. **sendSms:** This Lambda function retrieves the AI response from the SQS queue and sends it as a reply SMS message using the Twilio api.
 
-
+## All logging can be found in AWS CloudWatch and adhears to the following format:
+`Logging Level` `ConversationId` -- `Lambda` -- `Log Content` -- `Logged Parameters`
+INFO	SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
 
 ## Example Usage (Using the "text-davinci-003" model):
 <img src="https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24" width="411" height="812">
