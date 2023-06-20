@@ -1,10 +1,6 @@
-import { SQS, SecretsManager } from 'aws-sdk';
 import { Configuration, OpenAIApi }  from 'openai';
 import  { getSecret } from './utils/secrets.util';
 import { sendMessageToSqs } from './utils/sqs.util'
-
-const sqs = new SQS();
-const secretsManager = new SecretsManager();
 
 export const handler = async (event: any): Promise<any> => {
   const secrets = await getSecret('ChatGPTSecrets');
@@ -62,17 +58,3 @@ export const handler = async (event: any): Promise<any> => {
     }
   }
 };
-
-// async function sendMessageToSqs(message: {conversationId: string, to: string, from: string, body: string}, queueUrl: string): Promise<void>{
-//   const params = {
-//     MessageBody: JSON.stringify(message),
-//     QueueUrl: queueUrl,
-//   };
-  
-//   try {
-//     await sqs.sendMessage(params).promise();
-//     console.log(`${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(params)}`);
-//   } catch (error) {
-//     console.error(`${message.conversationId} -- ReceiveSMS -- Error sending message to SQS: ${JSON.stringify(error)}`);
-//   }
-// }

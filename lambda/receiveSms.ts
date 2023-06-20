@@ -60,16 +60,3 @@ function parseStringValues(requestBody: string) {
   };
 }
 
-// async function sendMessageToSqs(message: {conversationId: string, to: string, from: string, body: string}, queueUrl: string): Promise<void>{
-//   const params = {
-//     MessageBody: JSON.stringify(message),
-//     QueueUrl: queueUrl,
-//   };
-  
-//   try {
-//     await sqs.sendMessage(params).promise();
-//     console.log(`${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(params)}`);
-//   } catch (error) {
-//     console.error(`${message.conversationId} -- ReceiveSMS -- Error sending message to SQS: ${JSON.stringify(error)}`);
-//   }
-// }
