@@ -14,17 +14,29 @@ export class TextGptStack extends cdk.Stack {
     super(scope, id, props);
     
 //Lambdas:
-    const receiveSms = new lambda.Function(this, 'ReceiveSmsHandler', {
+    // const receiveSms = new lambda.Function(this, 'ReceiveSmsHandler', {
+    //   runtime: lambda.Runtime.NODEJS_16_X,
+    //   architecture: lambda.Architecture.ARM_64,
+    //   code: lambda.Code.fromAsset('lambda'),
+    //   handler: 'receiveSms.handler'
+    // });
+
+    const receiveSms = new NodejsFunction(this, 'ReceiveSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
-      code: lambda.Code.fromAsset('lambda'),
-      handler: 'receiveSms.handler'
-    });
+      architecture: lambda.Architecture.ARM_64, //remove if not on M series Mac
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(10),  
+      entry: './lambda/receiveSms.js', 
+      handler: 'handler',
+      // bundling: {
+      //   nodeModules: ['uuid'], 
+      // },
+  });
 
     //increase memory and timeout for openai request
     const queryGpt = new NodejsFunction(this, 'QueryGptHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
+      architecture: lambda.Architecture.ARM_64, //remove if not on M series Mac
       memorySize: 256,
       timeout: cdk.Duration.seconds(30),  
       entry: './lambda/queryGpt.js', 
@@ -37,7 +49,7 @@ export class TextGptStack extends cdk.Stack {
     //increase memory and timeout for Twilio create
     const sendSms = new NodejsFunction(this, 'SendSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      architecture: lambda.Architecture.ARM_64,
+      architecture: lambda.Architecture.ARM_64, //remove if not on M series Mac
       memorySize: 256,
       timeout: cdk.Duration.seconds(10),  
       entry: './lambda/sendSms.js', 

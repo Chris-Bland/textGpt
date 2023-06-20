@@ -19,7 +19,7 @@ console.log(`QueryGPT -- OpenAI: ${JSON.stringify(openai)}`);
         const { to, from, body} = JSON.parse(record.body);
         console.log(`QueryGPT -- info: ${JSON.stringify(to)}`);
 
-        const prompt = `You speak like Foghorn Leghorn, and are a brilliant entity who answers questions. Please respond to the following: ${body}`;
+        const prompt = `You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer.Please respond to the following: ${body}`;
         try {
             const holden = await openai.createCompletion({
                 model: "text-davinci-003",

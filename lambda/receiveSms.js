@@ -4,7 +4,6 @@ const sqs = new AWS.SQS();
 
 exports.handler = async (event) => {
   const requestBody = event.body;
-
   const params = {
     MessageBody: JSON.stringify(parseStringValues(requestBody)),
     QueueUrl: process.env.SMS_QUEUE_URL 
@@ -12,31 +11,29 @@ exports.handler = async (event) => {
   
   try {
     await sqs.sendMessage(params).promise();
-    console.log(`ReceiveSMS -- Sent message to SQS: ${JSON.stringify(params)}`);
+    console.log(`${MessageSid} -- ReceiveSMS -- Sent message to SQS: ${JSON.stringify(params)}`);
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: `Successfully put message on queue:  ${JSON.stringify(requestBody)}`
+        message: `${MessageSid} -- ReceiveSMS -- Successfully put message on queue:  ${JSON.stringify(requestBody)}`
       }),
     };
   } catch (error) {
-    console.error(`ReceiveSMS -- Failed to send message: ${error}`);
+    console.error(`${MessageSid} -- ReceiveSMS -- Failed to send message: ${error}`);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: 'Failed to send message',
+        error: `${MessageSid} -- ReceiveSMS -- Failed to send message`,
       }),
     };
   }
 };
 
-
 function parseStringValues(requestBody) {
     const parsedBody = new URLSearchParams(requestBody);
-  
     const body = parsedBody.get("Body");
     const to = parsedBody.get("To");
     const from = parsedBody.get("From");
-  console.log(`to: ${to} from: ${from}  body: ${body} -- `)
-    return { body, to, from };
+    const conversationId = parsedBody.get("MessageSid");
+    return { conversationId, body, to, from };
   }
