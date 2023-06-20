@@ -1,19 +1,28 @@
 import { SQS } from 'aws-sdk';
-import  { sendMessageToSqs } from './utils/sqs.util';
+import { sendMessageToSqs } from './utils/sqs.util'
 
 const sqs = new SQS();
 
 
 exports.handler = async (event: { body: any; }) => {
-  console.log(` -- ReceiveSMS -- before: ${event.body}`);
+  const queueUrl = process.env.SMS_QUEUE_URL;
+
+  if (!queueUrl) {
+    console.error(`ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`);
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error:`ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`
+
+      }),
+    };
+  }
+
   const message = parseStringValues(event.body)
   console.log(`${message.conversationId} -- ReceiveSMS -- After: ${message}`);
   try {
-    if (!process.env.SEND_SMS_QUEUE_URL) {
-      console.error(`${message.conversationId} -- ReceiveSMS -- SEND_SMS_QUEUE_URL environment variable is not set`);
-      return;
-    }
-    await sendMessageToSqs( message, 'ReceiveSMS', process.env.SEND_SMS_QUEUE_URL );
+    await sendMessageToSqs( message, 'ReceiveSMS', queueUrl );
     console.log(`${message.conversationId} -- ReceiveSMS -- Sent message to SQS: ${JSON.stringify(message)}`);
     return {
       statusCode: 200,
@@ -50,3 +59,17 @@ function parseStringValues(requestBody: string) {
     body: body as string,
   };
 }
+
+// async function sendMessageToSqs(message: {conversationId: string, to: string, from: string, body: string}, queueUrl: string): Promise<void>{
+//   const params = {
+//     MessageBody: JSON.stringify(message),
+//     QueueUrl: queueUrl,
+//   };
+  
+//   try {
+//     await sqs.sendMessage(params).promise();
+//     console.log(`${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(params)}`);
+//   } catch (error) {
+//     console.error(`${message.conversationId} -- ReceiveSMS -- Error sending message to SQS: ${JSON.stringify(error)}`);
+//   }
+// }

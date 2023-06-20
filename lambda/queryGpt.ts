@@ -1,9 +1,7 @@
 import { SQS, SecretsManager } from 'aws-sdk';
-
 import { Configuration, OpenAIApi }  from 'openai';
 import  { getSecret } from './utils/secrets.util';
-import  { sendMessageToSqs } from './utils/sqs.util';
-import { open } from 'fs';
+import { sendMessageToSqs } from './utils/sqs.util'
 
 const sqs = new SQS();
 const secretsManager = new SecretsManager();
@@ -21,6 +19,19 @@ export const handler = async (event: any): Promise<any> => {
   });
   const openai = new OpenAIApi(configuration);
 
+  const queueUrl = process.env.SEND_SMS_QUEUE_URL;
+
+  if (!queueUrl) {
+    console.error(`QueryGPT -- Error: The SEND_SMS_QUEUE_URL environment variable is not set`);
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error:`QueryGPT -- Error: The SEND_SMS_QUEUE_URL environment variable is not set`
+
+      }),
+    };
+  }
   for (const record of event.Records) {
     const { conversationId, to, from, body } = JSON.parse(record.body);
     try {
@@ -41,11 +52,7 @@ export const handler = async (event: any): Promise<any> => {
 
       if (openAIResponse) {      
         const message = {conversationId: conversationId, to: to, from: from, body: openAIResponse};
-        if (!process.env.SEND_SMS_QUEUE_URL) {
-          console.error(`${message.conversationId} -- QueryGPT -- SEND_SMS_QUEUE_URL environment variable is not set`);
-          return;
-        }
-        await sendMessageToSqs(message,'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
+        await sendMessageToSqs(message, 'QueryGPT', queueUrl);
       } else {
         console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
       }
@@ -55,3 +62,17 @@ export const handler = async (event: any): Promise<any> => {
     }
   }
 };
+
+// async function sendMessageToSqs(message: {conversationId: string, to: string, from: string, body: string}, queueUrl: string): Promise<void>{
+//   const params = {
+//     MessageBody: JSON.stringify(message),
+//     QueueUrl: queueUrl,
+//   };
+  
+//   try {
+//     await sqs.sendMessage(params).promise();
+//     console.log(`${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(params)}`);
+//   } catch (error) {
+//     console.error(`${message.conversationId} -- ReceiveSMS -- Error sending message to SQS: ${JSON.stringify(error)}`);
+//   }
+// }
