@@ -42,10 +42,6 @@ The `ConversationId` is consistent across logs for the same message, making it e
 
 By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a different model, visit the [OpenAI Models Documentation](https://platform.openai.com/docs/models) to select a model, and then update the model name in the `queryGpt` Lambda function.
 
-### Example Usage
-
-![Example Usage](https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24)
-
 ## Getting Started
 
 ### Prerequisites
@@ -88,9 +84,14 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 2. If the Lambda functions are not able to access the secrets, verify that the IAM policy associated with the Lambda functions has the correct permissions and resource ARN.
 3. Ensure that your Twilio webhook is correctly configured to point to the `receiveSms` Lambda function URL.
 
+### Example Usage
+
+![Example Usage](https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24)
+
 ## Acknowledgments
 
 - OpenAI for the ChatGPT model.
 - AWS for the Cloud Development Kit (CDK) and Lambda services.
 - Twilio for the telephony services.
+  
 
