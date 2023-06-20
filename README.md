@@ -10,6 +10,7 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 
 ## All logging can be found in AWS CloudWatch and adhears to the following format:
 `Logging Level` `ConversationId` -- `Lambda` -- `Log Content` -- `Logged Parameters`
+
 INFO	SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
 
 ## Example Usage (Using the "text-davinci-003" model):
