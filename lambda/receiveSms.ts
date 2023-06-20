@@ -1,21 +1,20 @@
 const AWS = require('aws-sdk');
 const sqs = new AWS.SQS();
 
-let conversationId;
 
 exports.handler = async (event: { body: any; }) => {
   const requestBody = event.body;
-  const { conversationId, ...message } = parseStringValues(requestBody);
+  const { ...message } = parseStringValues(requestBody);
 
   const queueUrl = process.env.SMS_QUEUE_URL;
 
   if (!queueUrl) {
-    console.error(`${conversationId} -- ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`);
+    console.error(`${message.conversationId} -- ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        error:`${conversationId} -- ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`
+        error:`${message.conversationId} -- ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`
 
       }),
     };
@@ -28,21 +27,21 @@ exports.handler = async (event: { body: any; }) => {
   
   try {
     await sqs.sendMessage(params).promise();
-    console.log(`${conversationId} -- ReceiveSMS -- Sent message to SQS: ${JSON.stringify(params)}`);
+    console.log(`${message.conversationId} -- ReceiveSMS -- Sent message to SQS: ${JSON.stringify(params)}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: `${conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(requestBody)}`
+        message: `${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(requestBody)}`
       }),
     };
   } catch (error) {
-    console.error(`${conversationId} -- ReceiveSMS -- Failed to send message: ${error}`);
+    console.error(`${message.conversationId} -- ReceiveSMS -- Failed to send message: ${error}`);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        error: `${conversationId} -- ReceiveSMS -- Failed to send message`
+        error: `${message.conversationId} -- ReceiveSMS -- Failed to send message`
       }),
     };
   }
