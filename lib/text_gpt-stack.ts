@@ -14,13 +14,6 @@ export class TextGptStack extends cdk.Stack {
     super(scope, id, props);
     
 //Lambdas:
-    // const receiveSms = new lambda.Function(this, 'ReceiveSmsHandler', {
-    //   runtime: lambda.Runtime.NODEJS_16_X,
-    //   architecture: lambda.Architecture.ARM_64,
-    //   code: lambda.Code.fromAsset('lambda'),
-    //   handler: 'receiveSms.handler'
-    // });
-
     const receiveSms = new NodejsFunction(this, 'ReceiveSmsHandler', {
       runtime: lambda.Runtime.NODEJS_16_X,
       architecture: lambda.Architecture.ARM_64, //remove if not on M series Mac
