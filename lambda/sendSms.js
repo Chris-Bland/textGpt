@@ -13,7 +13,7 @@ exports.handler = async (event) => {
       const message = JSON.parse(record.body);
       const [conversationId, to, from, body] = message.split("|||");
       if (body){
-      console.log(`${conversationId} -- SendSMS -- Sending message to Twilio}`);
+      console.log(`${conversationId} -- SendSMS -- Sending message to Twilio`);
       await client.messages
       .create({body: body+'    --TextGPT', from: to, to: from})
       .then(message => console.log(message.sid));
