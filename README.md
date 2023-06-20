@@ -13,6 +13,8 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 
 INFO	SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
 
+(A conversationId will follow the same message as it progresses through TextGPT for easy troubleshooting"
+
 ## To change the OpenAI Model in use:
 Currently, this demo is using the OpenAI `gpt-3.5-turbo` model. This has a perfect blend of functionality, speed, cost, and max token allowance.
 
