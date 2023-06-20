@@ -27,11 +27,14 @@ const openai = new OpenAIApi(configuration);
           //gpt-3.5-turbo createChatCompletion() call
           const holden = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
+            temperature: 0.8,
             messages: [
               {role: "system", content: "You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response."},
               {role: "user", content: body}],
+              stream: false,
+              logprobs: null,
+              stop: "\n"
           });
-          console.log(JSON.stringify());
           const openAIResponse = holden.data.choices[0].message.content;
 
             //build message
