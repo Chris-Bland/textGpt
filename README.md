@@ -1,6 +1,6 @@
 # TextGPT
 
-TextGPT bridges the gap between telephony and Conversational AI by integrating the Twilio telephony system with OpenAI's ChatGPT model. It enables SMS messages to be processed and responded to by ChatGPT, providing an AI-driven conversational experience.
+TextGPT bridges the gap between telephony and Conversational AI by integrating the Twilio telephony system with OpenAI's ChatGPT model. It enables SMS messages to be processed and responded to by ChatGPT, providing an AI-driven conversational experience all built on a scaleable and easily deployable platform.
 
 ![textGptArch](https://github.com/c-bland/textGpt/assets/27901095/ddfa85dd-caa7-4e3c-8dc5-c164ac19e9ae)
 
