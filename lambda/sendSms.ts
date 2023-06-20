@@ -3,7 +3,7 @@ import twilio from 'twilio';
 import  { getSecret } from './utils/secrets.util';
 
 const secretsManager = new SecretsManager();
-exports.handler = async (event: { Records: any; }) => {
+export const handler = async (event: { Records: any; }) => {
     try {
         // Get secrets for Twilio call
         const secrets = await getSecret('ChatGPTSecrets');

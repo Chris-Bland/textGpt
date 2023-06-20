@@ -4,7 +4,7 @@ import { sendMessageToSqs } from './utils/sqs.util'
 const sqs = new SQS();
 
 
-exports.handler = async (event: { body: any; }) => {
+export const handler = async (event: { body: any; }) => {
   const queueUrl = process.env.SMS_QUEUE_URL;
 
   if (!queueUrl) {
