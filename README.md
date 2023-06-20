@@ -14,13 +14,13 @@ The system is built using the AWS Cloud Development Kit (CDK) and consists of se
 INFO	SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
 
 ## To change the OpenAI Model in use:
-Currently, this demo is using the OpenAI gpt-3.5-turbo model. This has a perfect blend of functionality, speed, cost, and max token allowance.
+Currently, this demo is using the OpenAI `gpt-3.5-turbo` model. This has a perfect blend of functionality, speed, cost, and max token allowance.
 
 To adjust the model used, consult the OpenAI model list, choose a model, and replace the model name in the `queryGpt` lambda.
 
 ![OpenAI Models Documentation](https://platform.openai.com/docs/models)
 
-## Example Usage (Using the "gpt-3.5-turbo" model):
+## Example Usage (Using the `gpt-3.5-turbo` model):
 <img src="https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24" width="411" height="812">
 
 
