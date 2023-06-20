@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-cdk/aws-lambda-nodejs": "^1.203.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.204.0",
     "aws-sdk": "^2.1397.0",
     "openai": "^3.3.0",
     "twilio": "^4.11.2",
