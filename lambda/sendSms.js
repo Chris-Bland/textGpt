@@ -16,7 +16,7 @@ exports.handler = async (event) => {
       console.log(`${conversationId} -- SendSMS -- Sending message to Twilio`);
       await client.messages
       .create({body: body+'    --TextGPT', from: to, to: from})
-      .then(message => console.log(message.sid));
+      .then(message => console.log(`${conversationId} -- SendSMS -- Sending message to Twilio: ${message.sid}`));
     } 
     }
   } catch (error) {
