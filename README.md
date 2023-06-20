@@ -6,7 +6,7 @@ TextGPT bridges the gap between telephony and Conversational AI by integrating t
 
 ## Features
 
-- Receive SMS messages via Twilio.
+- Send and Receive SMS messages via Twilio.
 - Process and respond to messages using OpenAI's ChatGPT.
 - Scalable and serverless architecture using AWS Lambda functions.
 - Reliable message processing using Amazon SQS queues.
