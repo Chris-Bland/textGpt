@@ -14,7 +14,7 @@ const openai = new OpenAIApi(configuration);
     for (const record of event.Records) {
         const { conversationId, to, from, body} = JSON.parse(record.body);
         try {
-          console.log(`${conversationId} -- QueryGPT -- Calling OpenAI`);
+          console.log(`${conversationId} -- QueryGPT -- Building Prompt and Calling OpenAI`);
 
           //gpt-3.5-turbo createChatCompletion() call
           const holden = await openai.createChatCompletion({
@@ -28,7 +28,6 @@ const openai = new OpenAIApi(configuration);
               // stop: "\n"
           });
           const openAIResponse = holden.data.choices[0].message.content;
-          console.log(`${openAIResponse} -- QueryGPT -- Response`);
             //build message
             const message = [conversationId, to, from, openAIResponse].join("|||");
             const params = {

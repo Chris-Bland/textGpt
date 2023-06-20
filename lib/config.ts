@@ -2,7 +2,7 @@ export const envConfig = {
     receiveSms: {
         memorySize: 256,
         timeout: 10, // in seconds
-        entry: './lambda/receiveSms.js'
+        entry: './lambda/receiveSms.ts'
     },
     queryGpt: {
         memorySize: 1024,
