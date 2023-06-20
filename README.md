@@ -26,10 +26,14 @@ TextGPT is built using the AWS Cloud Development Kit (CDK) and consists of sever
 ## Logging
 
 All logging is done through AWS CloudWatch and follows the format:
+
 `Logging Level` `ConversationId` -- `Lambda` -- `Log Content` -- `Logged Parameters`
 
+
 Example:
+
 INFO SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
+
 The `ConversationId` is consistent across logs for the same message, making it easier to trace its progression through the system.
 
 ## Configuration
