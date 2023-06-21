@@ -19,5 +19,13 @@ export const envConfig = {
         bundling: {
             nodeModules: ['twilio']
         }
+    },
+    errorSms: {
+        memorySize: 256,
+        timeout: 10,
+        entry: './lambda/errorSms.ts',
+        bundling: {
+            nodeModules: ['twilio']
+        }
     }
 }

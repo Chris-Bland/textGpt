@@ -25,17 +25,17 @@ export class TextGptStack extends cdk.Stack {
         const receiveSms = this.createLambdaFunction('ReceiveSmsHandler', envConfig.receiveSms);
         const queryGpt = this.createLambdaFunction('QueryGptHandler', envConfig.queryGpt);
         const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms);
+        const errorSms = this.createLambdaFunction('ErrorSmsHandler', envConfig.errorSms);
 
         // Secrets
         const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets');
-        sendSms.addToRolePolicy(new iam.PolicyStatement({
-            actions: ['secretsmanager:GetSecretValue'],
-            resources: [secret.secretArn],
-        }));
-        queryGpt.addToRolePolicy(new iam.PolicyStatement({
-            actions: ['secretsmanager:GetSecretValue'],
-            resources: [secret.secretArn],
-        }));
+        const lambdas = [sendSms, queryGpt, errorSms];
+        for (const lambda of lambdas) {
+            lambda.addToRolePolicy(new iam.PolicyStatement({
+                actions: ['secretsmanager:GetSecretValue'],
+                resources: [secret.secretArn],
+            }));
+        }
 
         // SQS
         const receiveSmsQueue = new sqs.Queue(this, 'ReceiveSmsQueue', {
@@ -44,25 +44,34 @@ export class TextGptStack extends cdk.Stack {
         const sendSmsQueue = new sqs.Queue(this, 'SendSmsQueue', {
             visibilityTimeout: cdk.Duration.seconds(30)
         });
+        const errorSmsQueue = new sqs.Queue(this, 'ErrorSmsQueue', {
+            visibilityTimeout: cdk.Duration.seconds(30)
+        });
 
         // Environment Variables
         receiveSms.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
+        receiveSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
         queryGpt.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
         queryGpt.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
+        queryGpt.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
         sendSms.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
+        sendSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
+        errorSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
 
         // Permissions
         receiveSmsQueue.grantSendMessages(receiveSms);
         sendSmsQueue.grantSendMessages(queryGpt);
+        errorSmsQueue.grantSendMessages(receiveSms);
+        errorSmsQueue.grantSendMessages(queryGpt);
+        errorSmsQueue.grantSendMessages(sendSms);
 
         // Event Sources
         queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(receiveSmsQueue));
         sendSms.addEventSource(new lambdaEventSources.SqsEventSource(sendSmsQueue));
+        errorSms.addEventSource(new lambdaEventSources.SqsEventSource(errorSmsQueue));
 
         // API Gateway
-        new apigw.LambdaRestApi(this, 'Endpoint', {
-            handler: receiveSms
-        });
+        new apigw.LambdaRestApi(this, 'Endpoint', {handler: receiveSms});
     }
 
     private createLambdaFunction(id: string, options: CustomNodejsFunctionOptions) {
@@ -74,6 +83,6 @@ export class TextGptStack extends cdk.Stack {
           //architecture: lambda.Architecture.X86_64,
           handler: 'handler',
       });
-  }
+    }
   
 }
