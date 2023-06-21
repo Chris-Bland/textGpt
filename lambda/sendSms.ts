@@ -1,11 +1,8 @@
-import {SecretsManager} from 'aws-sdk';
 import twilio from 'twilio';
 import  { getSecret } from './utils/secrets.util';
 
-const secretsManager = new SecretsManager();
 export const handler = async (event: { Records: any; }) => {
     try {
-        // Get secrets for Twilio call
         const secrets = await getSecret('ChatGPTSecrets');
         const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets;
         const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
@@ -24,6 +21,7 @@ export const handler = async (event: { Records: any; }) => {
                 }
             } catch (error) {
                 console.error(`${conversationId} -- SendSMS -- Error during processing record: ${error}`);
+                throw error;
             }
         }
     } catch (error) {

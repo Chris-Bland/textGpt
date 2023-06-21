@@ -1,29 +1,12 @@
 import { SQS } from 'aws-sdk';
 import { sendMessageToSqs } from './utils/sqs.util'
-
 const sqs = new SQS();
 
-
 export const handler = async (event: { body: any; }) => {
-  const queueUrl = process.env.SMS_QUEUE_URL;
+  const message = parseTwilioEventValues(event.body)
 
-  if (!queueUrl) {
-    console.error(`ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error:`ReceiveSMS -- Error: The SMS_QUEUE_URL environment variable is not set`
-
-      }),
-    };
-  }
-
-  const message = parseStringValues(event.body)
-  console.log(`${message.conversationId} -- ReceiveSMS -- After: ${message}`);
   try {
-    await sendMessageToSqs( message, 'ReceiveSMS', queueUrl );
-    console.log(`${message.conversationId} -- ReceiveSMS -- Sent message to SQS: ${JSON.stringify(message)}`);
+    await sendMessageToSqs( message, 'ReceiveSMS', process.env.SMS_QUEUE_URL );
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -32,7 +15,6 @@ export const handler = async (event: { body: any; }) => {
       }),
     };
   } catch (error) {
-    console.error(`${message.conversationId} -- ReceiveSMS -- Failed to send message: ${error}`);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -43,7 +25,7 @@ export const handler = async (event: { body: any; }) => {
   }
 };
 
-function parseStringValues(requestBody: string) {
+function parseTwilioEventValues(requestBody: string) {
   const parsedBody = new URLSearchParams(requestBody as string);
   const body = parsedBody.get("Body");
   const to = parsedBody.get("To");

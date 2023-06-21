@@ -15,24 +15,10 @@ export const handler = async (event: any): Promise<any> => {
   });
   const openai = new OpenAIApi(configuration);
 
-  const queueUrl = process.env.SEND_SMS_QUEUE_URL;
-
-  if (!queueUrl) {
-    console.error(`QueryGPT -- Error: The SEND_SMS_QUEUE_URL environment variable is not set`);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error:`QueryGPT -- Error: The SEND_SMS_QUEUE_URL environment variable is not set`
-
-      }),
-    };
-  }
   for (const record of event.Records) {
     const { conversationId, to, from, body } = JSON.parse(record.body);
     try {
       console.log(`${conversationId} -- QueryGPT -- Building Prompt and Calling OpenAI`);
-
       const holden = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
         messages: [
@@ -48,13 +34,13 @@ export const handler = async (event: any): Promise<any> => {
 
       if (openAIResponse) {      
         const message = {conversationId: conversationId, to: to, from: from, body: openAIResponse};
-        await sendMessageToSqs(message, 'QueryGPT', queueUrl);
+        await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
       } else {
         console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
       }
-
     } catch (error) {
       console.error(`${conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`);
+      throw error;
     }
   }
 };
