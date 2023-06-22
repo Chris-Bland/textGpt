@@ -40,7 +40,8 @@ export const handler = async (event: any): Promise<any> => {
       }
     } catch (error) {
       console.error(`${conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`);
-      throw error;
+      const errorMessage = {conversationId: conversationId, to: to, from: from, body: JSON.stringify(error)};
+      await sendMessageToSqs( errorMessage, 'QueryGPT', process.env.ERROR_QUEUE_URL );
     }
   }
 };

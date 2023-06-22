@@ -4,7 +4,6 @@ const sqs = new SQS();
 
 export const handler = async (event: { body: any; }) => {
   const message = parseTwilioEventValues(event.body)
-
   try {
     await sendMessageToSqs( message, 'ReceiveSMS', process.env.SMS_QUEUE_URL );
     return {
@@ -15,6 +14,7 @@ export const handler = async (event: { body: any; }) => {
       }),
     };
   } catch (error) {
+    await sendMessageToSqs( message, 'ReceiveSMS', process.env.ERROR_QUEUE_URL );
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
