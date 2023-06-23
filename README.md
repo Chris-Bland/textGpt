@@ -86,7 +86,7 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 
 ### Example Usage
 
-![Example Usage]([https://github.com/c-bland/textGpt/assets/27901095/066345ee-5190-48e5-97e4-5e292b26cc24](https://github.com/Chris-Bland/textGpt/assets/27901095/eb30def8-1380-429f-9a3b-b6ed258752d0))
+![Example Usage](https://github.com/Chris-Bland/textGpt/assets/27901095/eb30def8-1380-429f-9a3b-b6ed258752d0)
 
 
 ## Acknowledgments
