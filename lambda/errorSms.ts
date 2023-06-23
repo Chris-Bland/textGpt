@@ -8,14 +8,15 @@ export const handler = async (event: { Records: any; }) => {
         const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
         for (const record of event.Records) {
-            const { conversationId, to, from } = JSON.parse(record.body);
+            const { conversationId, to, from, lambda } = JSON.parse(record.body);
             try {
+                console.log(`${conversationId} -- ErrorSMS -- Error from: ${lambda}`);
                 const message = await client.messages.create({
                     body: 'Unfortuntately we encountered an issue. Please try again. If this issue persists, please try again later.    --TextGPT',
                     from: to,
                     to: from
                 });
-                console.log(`${conversationId} -- ErrorSMS -- Message sent: ${message.sid}`);
+                console.log(`${conversationId} -- ErrorSMS -- Message sent successfully: ${message.sid}`);
             } catch (error) {
                 console.error(`${conversationId} -- ErrorSMS -- Error during processing of record: ${error}`);
             }

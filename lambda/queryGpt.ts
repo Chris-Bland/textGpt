@@ -7,9 +7,11 @@ const dynamodb = new DynamoDB.DocumentClient();
 
 export const handler = async (event: any): Promise<any> => {
   const secrets = await getSecret('ChatGPTSecrets');
+  console.log(`GPT -- ${JSON.stringify(event.Records)}`)
   
   if (!secrets || !secrets.OPENAI_API_KEY) {
-    console.error('Unable to retrieve OpenAI API Key from secrets');
+    console.error('QueryGPT -- Unable to retrieve OpenAI API Key from secrets');
+    const { conversationId, to, from, body } = JSON.parse(event.Records[0].record.body);
     return;
   }
 
