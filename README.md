@@ -86,10 +86,11 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 
 ### Example Usage
 
-![Example Usage](https://github.com/Chris-Bland/textGpt/assets/27901095/eb30def8-1380-429f-9a3b-b6ed258752d0)
+![Example Usage](https://github.com/Chris-Bland/textGpt/assets/27901095/5368fd4b-797e-4a06-a8fc-30f1aac965f6)
 
 
 ## Acknowledgments
+
 
 - OpenAI for the ChatGPT model.
 - AWS for the Cloud Development Kit (CDK) and Lambda services.
