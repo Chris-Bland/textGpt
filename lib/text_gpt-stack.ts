@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
@@ -48,6 +49,13 @@ export class TextGptStack extends cdk.Stack {
             visibilityTimeout: cdk.Duration.seconds(30)
         });
 
+        // DynamoDB
+        const conversationTable = new dynamodb.Table(this, 'ConversationTable', {
+            partitionKey: { name: 'conversationId', type: dynamodb.AttributeType.STRING },
+            sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
+            billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        });
+
         // Environment Variables
         receiveSms.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
         receiveSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
@@ -64,6 +72,8 @@ export class TextGptStack extends cdk.Stack {
         errorSmsQueue.grantSendMessages(receiveSms);
         errorSmsQueue.grantSendMessages(queryGpt);
         errorSmsQueue.grantSendMessages(sendSms);
+        conversationTable.grantReadWriteData(queryGpt);
+
 
         // Event Sources
         queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(receiveSmsQueue));

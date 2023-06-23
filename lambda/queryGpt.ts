@@ -1,6 +1,9 @@
 import { Configuration, OpenAIApi }  from 'openai';
 import  { getSecret } from './utils/secrets.util';
 import { sendMessageToSqs } from './utils/sqs.util'
+import { DynamoDB } from 'aws-sdk';
+
+const dynamodb = new DynamoDB.DocumentClient();
 
 export const handler = async (event: any): Promise<any> => {
   const secrets = await getSecret('ChatGPTSecrets');
@@ -33,8 +36,24 @@ export const handler = async (event: any): Promise<any> => {
       const openAIResponse = holden.data.choices && holden.data.choices[0].message ? holden.data.choices[0].message.content : undefined;
 
       if (openAIResponse) {      
+        
         const message = {conversationId: conversationId, to: to, from: from, body: openAIResponse};
         await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
+        
+        const params = {
+          TableName: 'ConversationTable', 
+          Item: {
+            senderNumber:to,
+            TwilioNumber:from,
+            input: body,
+            response: openAIResponse,
+            conversationId: conversationId,
+            timestamp: new Date().toISOString(),
+          },
+         };
+          await dynamodb.put(params).promise();
+          console.log(`Stored history in DynamoDB for conversationId: ${conversationId}`);
+
       } else {
         console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
       }
