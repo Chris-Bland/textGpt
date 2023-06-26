@@ -1,7 +1,7 @@
-import * as AWS from 'aws-sdk';
-import { ChatCompletionRequestMessageRoleEnum }  from 'openai';
+import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai';
+import { DynamoDB } from 'aws-sdk';
+const dynamodb = new DynamoDB.DocumentClient();
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
 interface QueryParams {
     TableName: string;
     KeyConditionExpression: string;
@@ -9,8 +9,7 @@ interface QueryParams {
     Limit: number;
     ScanIndexForward: boolean;
   }
-
-export async function fetchLatestMessages(senderNumber: string, tableName: string, body: string): Promise<Array<{ role: string, content: string }>> {
+export async function fetchLatestMessages(senderNumber: string, tableName: string, body: string): Promise<ChatCompletionRequestMessage[]> {
   try {
     // Query the latest 10 messages from the senderNumber
     const params: QueryParams = {
@@ -20,30 +19,36 @@ export async function fetchLatestMessages(senderNumber: string, tableName: strin
         ':senderNumber': senderNumber,
       },
       Limit: 10,
-      ScanIndexForward: false, // Sort in descending order to get the latest messages
+      ScanIndexForward: false, 
     };
     
     const result = await dynamodb.query(params).promise();
 
-    const messages: Array<{ role: ChatCompletionRequestMessageRoleEnum, content: string }> = [];
+    // Define the messages array with the correct type
+    const messages: ChatCompletionRequestMessage[] = [];
 
-
+    //if there are results, build out the messages array
     if (result.Items) {
-        for (const item of result.Items) {
+      for (const item of result.Items) {
+        if (item.input && item.response) {
             messages.push(
-                { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input }, 
-                { role: ChatCompletionRequestMessageRoleEnum.System, content: item.response }, 
+                { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
+                { role: ChatCompletionRequestMessageRoleEnum.System, content: item.response },
             );
         }
-        messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: body },)
-    } else {
+      }
+      if (body) {
+          messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: body });
+      }
+    } else if (body) {
         messages.push(
-            {
-                role: ChatCompletionRequestMessageRoleEnum.System, 
-                content: 'You are a brilliant mystical entity who answers questions. You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
-            },
-            { role: ChatCompletionRequestMessageRoleEnum.User, content: body }, 
-        )
+        {
+            role: ChatCompletionRequestMessageRoleEnum.System,
+            content:
+              'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
+          },
+          { role: ChatCompletionRequestMessageRoleEnum.User, content: body },
+        );
     }
     return messages.reverse();
   } catch (error) {
