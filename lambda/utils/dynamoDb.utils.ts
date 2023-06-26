@@ -25,32 +25,26 @@ export async function fetchLatestMessages(senderNumber: string, tableName: strin
     const result = await dynamodb.query(params).promise();
 
     // Define the messages array with the correct type
-    const messages: ChatCompletionRequestMessage[] = [];
+    const messages: ChatCompletionRequestMessage[] = [        {
+        role: ChatCompletionRequestMessageRoleEnum.System,
+        content:
+          'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
+      },];
 
     //if there are results, build out the messages array
-    if (result.Items) {
+    if (result.Items && result.Items.length > 0) {
       for (const item of result.Items) {
-        if (item.input && item.response) {
             messages.push(
                 { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
                 { role: ChatCompletionRequestMessageRoleEnum.System, content: item.response },
             );
         }
-      }
-      if (body) {
-          messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: body });
-      }
-    } else if (body) {
+    } 
         messages.push(
-        {
-            role: ChatCompletionRequestMessageRoleEnum.System,
-            content:
-              'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
-          },
           { role: ChatCompletionRequestMessageRoleEnum.User, content: body },
         );
-    }
-    return messages.reverse();
+
+    return messages;
   } catch (error) {
     console.error('Error fetching DynamoDB entry:', error);
     throw error;

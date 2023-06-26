@@ -64,7 +64,7 @@ export const handler = async (event: any): Promise<any> => {
         },
        };
         await dynamodb.put(params).promise();
-        console.log(`Stored context in DynamoDB for conversationId: ${conversationId}`);
+        console.log(`Stored context in DynamoDB: ${JSON.stringify(params)}`);
       }catch(error){
         console.error(`${conversationId} -- QueryGPT -- Failure to store dynamoDb entry for conversation: ${JSON.stringify(error)}`)
         return
