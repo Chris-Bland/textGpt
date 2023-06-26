@@ -9,9 +9,11 @@ TextGPT bridges the gap between telephony and Conversational AI by integrating t
 - Send and Receive SMS messages via Twilio API.
 - Process and respond to messages using OpenAI's API featuring a wealth of models (including GPT 3.5 turbo and GPT 4).
 - Scalable and serverless architecture using AWS Lambda functions.
-- Reliable message processing using Amazon SQS queues.
+- Reliable message processing using AWS SQS queues.
 - Secure storage of sensitive data with AWS Secrets Manager.
 - Detailed logging for monitoring and troubleshooting.
+- Conversation context stored using AWS DynamoDB (Can reply to "Tell me more about 'that'")
+- Infrastructure as Code
 
 ## System Components
 
