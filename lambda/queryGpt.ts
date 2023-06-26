@@ -1,13 +1,26 @@
 import { Configuration, OpenAIApi }  from 'openai';
 import  { getSecret } from './utils/secrets.util';
 import { sendMessageToSqs } from './utils/sqs.util'
+import { fetchLatestMessages } from './utils/dynamoDb.utils';
 import { DynamoDB } from 'aws-sdk';
-import {SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL }  from '../lib/text-gpt.constants';
 
 const dynamodb = new DynamoDB.DocumentClient();
 
+interface QueryParams {
+  TableName: string, 
+  Item: {
+    senderNumber: string,
+    TwilioNumber: string,
+    input: string,
+    response: string,
+    conversationId: string,
+    timestamp: string
+  },
+}
+
 export const handler = async (event: any): Promise<any> => {
   try{
+
   const secrets = await getSecret('ChatGPTSecrets');
   console.log(`GPT -- ${JSON.stringify(event.Records)}`)
   
@@ -21,8 +34,12 @@ export const handler = async (event: any): Promise<any> => {
   const openai = new OpenAIApi(configuration);
 
   for (const record of event.Records) {
+    if(process.env.CONVERSATION_TABLE_NAME){
       const { conversationId, to, from, body } = JSON.parse(record.body);
       //Dynamo Db get info:
+      const messages = await fetchLatestMessages(from, process.env.CONVERSATION_TABLE_NAME, body);
+      console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history: ${JSON.stringify(messages)}`);
+
       console.log(`${conversationId} -- QueryGPT -- Building Prompt and Calling OpenAI`);
       const holden = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
@@ -42,13 +59,12 @@ export const handler = async (event: any): Promise<any> => {
         await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
       
       //dynamoDb stuff:
-      if(process.env.DYNAMODB_TABLE_NAME){
       try{
-      const params = {
-        TableName: process.env.DYNAMODB_TABLE_NAME, 
+      const params: QueryParams = {
+        TableName: process.env.CONVERSATION_TABLE_NAME, 
         Item: {
-          senderNumber:to,
-          TwilioNumber:from,
+          senderNumber: from,
+          TwilioNumber:to,
           input: body,
           response: openAIResponse,
           conversationId: conversationId,
@@ -56,17 +72,17 @@ export const handler = async (event: any): Promise<any> => {
         },
        };
         await dynamodb.put(params).promise();
-        console.log(`Stored history in DynamoDB for conversationId: ${conversationId}`);
+        console.log(`Stored context in DynamoDB for conversationId: ${conversationId}`);
       }catch(error){
         console.error(`${conversationId} -- QueryGPT -- Failure to store dynamoDb entry for conversation: ${JSON.stringify(error)}`)
         return
       }
-    }
       } else {
         console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
       }
       
   }
+}
   } catch (error) {
     console.error(`${event.Records[0].body.conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`);
     const errorMessage = {conversationId: event.Records[0].body.conversationId, to: event.Records[0].body.to, from: event.Records[0].body.from, body: JSON.stringify(error)};
