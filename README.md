@@ -19,9 +19,12 @@ TextGPT is built using the AWS Cloud Development Kit (CDK) and consists of sever
 
 1. **receiveSms**: Triggered when an SMS message is received. It parses the message and enqueues it into an SQS queue for further processing.
 
-2. **queryGpt**: Retrieves messages from the SQS queue, constructs a prompt based on the message content, and sends the prompt to the ChatGPT model. The AI-generated response is then enqueued into a separate SQS queue for delivery.
+2. **queryGpt**: Retrieves messages from the SQS queue, constructs a prompt based on the message content and conversation history (stored in DynamoDB), and generates a prompt to send to the openAI API. The AI-generated response is then enqueued into a separate SQS queue for delivery and the new response is added to the Conversations DynamoDB table
 
 3. **sendSms**: Retrieves the AI response from the SQS queue and sends it as an SMS reply using the Twilio API.
+
+4. **errorSms**: Triggered by all Lambdas. Retrieves error messages from the SQS queue and sends an SMS error message to the user using the Twilio API.
+
 
 ## Logging
 
