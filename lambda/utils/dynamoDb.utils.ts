@@ -1,4 +1,5 @@
 import * as AWS from 'aws-sdk';
+import { ChatCompletionRequestMessageRoleEnum }  from 'openai';
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 interface QueryParams {
@@ -24,29 +25,27 @@ export async function fetchLatestMessages(senderNumber: string, tableName: strin
     
     const result = await dynamodb.query(params).promise();
 
-    // Format the messages into the required array of objects
-    const messages: Array<{ role: string, content: string }> = [];
+    const messages: Array<{ role: ChatCompletionRequestMessageRoleEnum, content: string }> = [];
 
-    //if there are results, build out the messages array
+
     if (result.Items) {
-      for (const item of result.Items) {
+        for (const item of result.Items) {
+            messages.push(
+                { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input }, 
+                { role: ChatCompletionRequestMessageRoleEnum.System, content: item.response }, 
+            );
+        }
+        messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: body },)
+    } else {
         messages.push(
-            { role: 'user', content: item.input },
-            { role: 'system', content: item.response },
-        );
-      }
-      messages.push({ role: 'user', content: body },)
-    } else{
-        messages.push(
-        {
-            role: 'system',
-            content:
-              'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
-          },
-          { role: 'user', content: body },
+            {
+                role: ChatCompletionRequestMessageRoleEnum.System, 
+                content: 'You are a brilliant mystical entity who answers questions. You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
+            },
+            { role: ChatCompletionRequestMessageRoleEnum.User, content: body }, 
         )
     }
-    return messages;
+    return messages.reverse();
   } catch (error) {
     console.error('Error fetching DynamoDB entry:', error);
     throw error;

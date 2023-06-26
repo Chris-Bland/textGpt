@@ -40,17 +40,9 @@ export const handler = async (event: any): Promise<any> => {
       const messages = await fetchLatestMessages(from, process.env.CONVERSATION_TABLE_NAME, body);
       console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history: ${JSON.stringify(messages)}`);
 
-      console.log(`${conversationId} -- QueryGPT -- Building Prompt and Calling OpenAI`);
       const holden = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.',
-          },
-          { role: 'user', content: body },
-        ],
+        messages: messages,
       });
       const openAIResponse = holden.data.choices && holden.data.choices[0].message ? holden.data.choices[0].message.content : undefined;
 
