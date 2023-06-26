@@ -8,6 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { envConfig } from './config';
+import {SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL }  from './text-gpt.constants';
 
 type CustomNodejsFunctionOptions = {
   memorySize: number;
@@ -51,20 +52,21 @@ export class TextGptStack extends cdk.Stack {
 
         // DynamoDB
         const conversationTable = new dynamodb.Table(this, 'ConversationTable', {
-            partitionKey: { name: 'conversationId', type: dynamodb.AttributeType.STRING },
+            partitionKey: { name: 'senderNumber', type: dynamodb.AttributeType.STRING },
             sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         });
 
         // Environment Variables
-        receiveSms.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
-        receiveSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
-        queryGpt.addEnvironment('SMS_QUEUE_URL', receiveSmsQueue.queueUrl);
-        queryGpt.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
-        queryGpt.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
-        sendSms.addEnvironment('SEND_SMS_QUEUE_URL', sendSmsQueue.queueUrl);
-        sendSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
-        errorSms.addEnvironment('ERROR_QUEUE_URL', errorSmsQueue.queueUrl);
+        receiveSms.addEnvironment(SMS_QUEUE_URL, receiveSmsQueue.queueUrl);
+        receiveSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl);
+        queryGpt.addEnvironment(SMS_QUEUE_URL, receiveSmsQueue.queueUrl);
+        queryGpt.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl);
+        queryGpt.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl);
+        queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName);
+        sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl);
+        sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl);
+        errorSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl);
 
         // Permissions
         receiveSmsQueue.grantSendMessages(receiveSms);

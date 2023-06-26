@@ -2,6 +2,7 @@ import { Configuration, OpenAIApi }  from 'openai';
 import  { getSecret } from './utils/secrets.util';
 import { sendMessageToSqs } from './utils/sqs.util'
 import { DynamoDB } from 'aws-sdk';
+import {SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL }  from '../lib/text-gpt.constants';
 
 const dynamodb = new DynamoDB.DocumentClient();
 
@@ -41,9 +42,10 @@ export const handler = async (event: any): Promise<any> => {
         await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
       
       //dynamoDb stuff:
+      if(process.env.DYNAMODB_TABLE_NAME){
       try{
       const params = {
-        TableName: 'ConversationTable', 
+        TableName: process.env.DYNAMODB_TABLE_NAME, 
         Item: {
           senderNumber:to,
           TwilioNumber:from,
@@ -59,6 +61,7 @@ export const handler = async (event: any): Promise<any> => {
         console.error(`${conversationId} -- QueryGPT -- Failure to store dynamoDb entry for conversation: ${JSON.stringify(error)}`)
         return
       }
+    }
       } else {
         console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
       }
