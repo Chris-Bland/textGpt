@@ -1,3 +1,5 @@
+import { createResponse } from './common.utils'
+
 export function parseTwilioEventValues (requestBody: string) {
   const parsedBody = new URLSearchParams(requestBody)
   const body = parsedBody.get('Body')
@@ -12,5 +14,19 @@ export function parseTwilioEventValues (requestBody: string) {
     to,
     from,
     body
+  }
+}
+export async function sendSms (client: any, to: string, from: string, body: string) {
+  try {
+    const message = await client.messages.create({
+      body: body + '    --TextGPT',
+      from: to,
+      to: from
+    })
+    console.log(`Message sent: ${message.sid}`)
+    return createResponse(200, { message: 'Message sent successfully' })
+  } catch (error) {
+    console.error(`Error sending message: ${error}`)
+    return createResponse(500, { error: `Failed to send message: ${error}` })
   }
 }
