@@ -8,7 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN } from './text-gpt.constants'
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -66,6 +66,7 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName)
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
+    sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
     errorSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
 
     // Permissions
@@ -79,7 +80,7 @@ export class TextGptStack extends cdk.Stack {
     // Event Sources
     queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(receiveSmsQueue))
     sendSms.addEventSource(new lambdaEventSources.SqsEventSource(sendSmsQueue))
-    errorSms.addEventSource(new lambdaEventSources.SqsEventSource(errorSmsQueue))
+    sendSms.addEventSource(new lambdaEventSources.SqsEventSource(errorSmsQueue))
 
     // API Gateway
     new apigw.LambdaRestApi(this, 'Endpoint', { handler: receiveSms })
