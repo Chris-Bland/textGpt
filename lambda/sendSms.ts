@@ -10,6 +10,10 @@ export const handler = async (event: { Records: any }) => {
 
     for (const record of event.Records) {
       const { conversationId, to, from, body } = JSON.parse(record.body)
+      if (to === "TEST123" || from === "TEST123") {
+        console.log(`${conversationId} -- SendSMS -- Test Successful!`);
+        return
+      }
       try {
         if (body) {
           const message = await client.messages.create({
