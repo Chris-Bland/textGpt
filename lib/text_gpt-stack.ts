@@ -27,11 +27,10 @@ export class TextGptStack extends cdk.Stack {
     const receiveSms = this.createLambdaFunction('ReceiveSmsHandler', envConfig.receiveSms)
     const queryGpt = this.createLambdaFunction('QueryGptHandler', envConfig.queryGpt)
     const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms)
-    const errorSms = this.createLambdaFunction('ErrorSmsHandler', envConfig.errorSms)
 
     // Secrets
     const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets')
-    const lambdas = [sendSms, queryGpt, errorSms]
+    const lambdas = [sendSms, queryGpt]
     for (const lambda of lambdas) {
       lambda.addToRolePolicy(new iam.PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
@@ -67,7 +66,6 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
-    errorSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)

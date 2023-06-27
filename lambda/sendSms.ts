@@ -1,6 +1,5 @@
 import twilio from 'twilio'
 import { getSecret } from './utils/secrets.util'
-import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: { Records: any }) => {
   console.log(`SendSms -- event: ${event}`);
@@ -18,9 +17,9 @@ export const handler = async (event: { Records: any }) => {
         console.log(`${conversationId} -- SendSMS -- Test Successful!`);
         return
       }
-
+      console.log(`Logging Arns. Process: ${process.env.ERROR_QUEUE_ARN}`)
+      console.log(`Logging Arns. record: ${record.eventSourceARN}`)
       if (record.eventSourceARN === process.env.ERROR_QUEUE_ARN) {
-
         const { lambda }= JSON.parse(record.body)
         console.log(`${conversationId} -- ErrorSMS -- Error from: ${lambda}`)
         const message = await client.messages.create({
@@ -30,6 +29,7 @@ export const handler = async (event: { Records: any }) => {
         })
         console.log(`${conversationId} -- ErrorSMS -- Message sent successfully: ${message.sid}`)
       }
+
       try {
         if (body) {
           const message = await client.messages.create({
@@ -41,8 +41,6 @@ export const handler = async (event: { Records: any }) => {
         }
       } catch (error) {
         console.error(`${conversationId} -- SendSMS -- Error during processing record: ${error}`)
-        const errorMessage = { conversationId, to, from, body: JSON.stringify(error) }
-        await sendMessageToSqs(errorMessage, 'QueryGPT', process.env.ERROR_QUEUE_URL)
       }
     }
   } catch (error) {

@@ -1,19 +1,9 @@
 import { parseTwilioEventValues } from './utils/twilio.utils';
 import { processMessage } from './utils/sqs.util';
 import { createResponse } from './utils/common.utils';
-import { sendMessageToSqs } from './utils/sqs.util';
 
 export const handler = async (event: { body: any }) => {
   try {
-    ////
-    const messageTest= {
-      conversationId: 'test',
-      to: 'TEST123',
-      from: 'TEST123',
-      body: 'TEST123',
-  }
-    await sendMessageToSqs(messageTest, 'ReceiveSMS', process.env.ERROR_QUEUE_URL);
-    console.log(`Twilio Content: ${JSON.stringify(event)}`);
     const message = parseTwilioEventValues(event.body);
     
     // Check if SMS_QUEUE_URL is defined
