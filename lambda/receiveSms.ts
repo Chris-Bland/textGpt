@@ -1,43 +1,39 @@
 import { SQS } from 'aws-sdk'
 import { sendMessageToSqs } from './utils/sqs.util'
+import { parseTwilioEventValues } from './utils/twilio.utils'
 const sqs = new SQS()
 
 export const handler = async (event: { body: any }) => {
-  const message = parseTwilioEventValues(event.body)
   try {
-    await sendMessageToSqs(message, 'ReceiveSMS', process.env.SMS_QUEUE_URL)
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `${message.conversationId} -- ReceiveSMS -- Successfully put message on queue: ${JSON.stringify(event.body)}`
-      })
+    console.log(`Twilio Content: ${JSON.stringify(event)}`)
+    const message = parseTwilioEventValues(event.body)
+    try {
+      await sendMessageToSqs(message, 'ReceiveSMS', process.env.SMS_QUEUE_URL)
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Success! ConversationID: ${message.conversationId}.`
+        })
+      }
+    } catch (error) {
+      await sendMessageToSqs(message, 'ReceiveSMS', process.env.ERROR_QUEUE_URL)
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `Failed to send message: ${error}`
+        })
+      }
     }
   } catch (error) {
-    await sendMessageToSqs(message, 'ReceiveSMS', process.env.ERROR_QUEUE_URL)
+    console.log(error)
     return {
-      statusCode: 500,
+      statusCode: 400,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        error: `${message.conversationId} -- ReceiveSMS -- Failed to send message`
+        error: `Invalid Request Content: ${error}`
       })
     }
-  }
-}
-
-function parseTwilioEventValues (requestBody: string) {
-  const parsedBody = new URLSearchParams(requestBody)
-  const body = parsedBody.get('Body')
-  const to = parsedBody.get('To')
-  const from = parsedBody.get('From')
-  const conversationId = parsedBody.get('MessageSid')
-  if (!body || !to || !from || !conversationId) {
-    throw new Error('Required values are missing in the request body.')
-  }
-  return {
-    conversationId,
-    to,
-    from,
-    body
   }
 }

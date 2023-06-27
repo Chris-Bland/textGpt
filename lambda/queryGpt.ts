@@ -37,7 +37,7 @@ export const handler = async (event: any): Promise<any> => {
         const { conversationId, to, from, body } = JSON.parse(record.body)
         // Dynamo Db get info:
         const messages = await fetchLatestMessages(from, process.env.CONVERSATION_TABLE_NAME, body)
-        console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history: ${JSON.stringify(messages)}`)
+        console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`)
 
         const holden = await openai.createChatCompletion({
           model: 'gpt-3.5-turbo',
@@ -46,10 +46,10 @@ export const handler = async (event: any): Promise<any> => {
         const openAIResponse = holden.data.choices && (holden.data.choices[0].message != null) ? holden.data.choices[0].message.content : undefined
 
         if (openAIResponse) {
+          console.log(`${conversationId} -- QueryGPT -- OpenAI Success`)
           const message = { conversationId, to, from, body: openAIResponse }
           await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL)
-
-          // dynamoDb stuff:
+          console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
           try {
             const params: QueryParams = {
               TableName: process.env.CONVERSATION_TABLE_NAME,
@@ -63,7 +63,7 @@ export const handler = async (event: any): Promise<any> => {
               }
             }
             await dynamodb.put(params).promise()
-            console.log(`Stored context in DynamoDB: ${JSON.stringify(params)}`)
+            console.log(`${conversationId} -- QueryGPT -- Stored context in DynamoDB: ${JSON.stringify(params)}`)
           } catch (error) {
             console.error(`${conversationId} -- QueryGPT -- Failure to store dynamoDb entry for conversation: ${JSON.stringify(error)}`)
             return

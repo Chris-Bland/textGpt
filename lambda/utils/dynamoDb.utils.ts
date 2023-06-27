@@ -24,14 +24,14 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
 
     const result = await dynamodb.query(params).promise()
 
-    // Define the messages array with the correct type
+    // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
     const messages: ChatCompletionRequestMessage[] = [{
       role: ChatCompletionRequestMessageRoleEnum.System,
       content:
           'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.'
     }]
 
-    // if there are results, build out the messages array
+    // If there are results, build out the messages array
     if ((result.Items != null) && result.Items.length > 0) {
       for (const item of result.Items) {
         messages.push(
@@ -40,6 +40,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
         )
       }
     }
+    // Otherwise, just add the new message body
     messages.push(
       { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
     )
