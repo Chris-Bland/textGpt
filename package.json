@@ -13,6 +13,7 @@
     "lint:fix": "eslint --fix 'lib/**/*.{js,ts}' 'lambda/**/*.{js,ts}'"
   },
   "devDependencies": {
+    "@aws-cdk/assert": "^2.68.0",
     "@types/jest": "^29.5.2",
     "@types/node": "20.1.7",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
