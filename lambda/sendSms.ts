@@ -3,6 +3,9 @@ import { getSecret } from './utils/secrets.util'
 import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: { Records: any }) => {
+  console.log(`SendSms -- event: ${event}`);
+  console.log(`SendSms -- event string: ${JSON.stringify(event)}`);
+
   try {
     const secrets = await getSecret('ChatGPTSecrets')
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets

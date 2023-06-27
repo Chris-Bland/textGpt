@@ -51,3 +51,13 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     throw error
   }
 }
+
+export async function storeInDynamoDB(params: any, conversationId: string) {
+    try {
+      await dynamodb.put(params).promise()
+      console.log(`Stored context in DynamoDB for ${conversationId}`)
+    } catch (error) {
+      console.error(`Failure to store dynamoDb entry for conversationId: ${conversationId}.${JSON.stringify(error)}`)
+      throw error
+    }
+  }

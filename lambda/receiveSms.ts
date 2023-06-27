@@ -1,39 +1,29 @@
-import { SQS } from 'aws-sdk'
-import { sendMessageToSqs } from './utils/sqs.util'
-import { parseTwilioEventValues } from './utils/twilio.utils'
-const sqs = new SQS()
+import { parseTwilioEventValues } from './utils/twilio.utils';
+import { processMessage } from './utils/sqs.util';
+import { createResponse } from './utils/common.utils';
 
 export const handler = async (event: { body: any }) => {
   try {
-    console.log(`Twilio Content: ${JSON.stringify(event)}`)
-    const message = parseTwilioEventValues(event.body)
-    try {
-      await sendMessageToSqs(message, 'ReceiveSMS', process.env.SMS_QUEUE_URL)
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: `Success! ConversationID: ${message.conversationId}.`
-        })
-      }
-    } catch (error) {
-      await sendMessageToSqs(message, 'ReceiveSMS', process.env.ERROR_QUEUE_URL)
-      return {
-        statusCode: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: `Failed to send message: ${error}`
-        })
+    console.log(`Twilio Content: ${JSON.stringify(event)}`);
+    const message = parseTwilioEventValues(event.body);
+    
+    // Check if SMS_QUEUE_URL is defined
+    if (!process.env.SMS_QUEUE_URL) {
+      throw new Error('SMS_QUEUE_URL environment variable is not set');
+    }
+    
+    // Process the message, place it on the SQS queue, and return the response
+    return await processMessage(message, process.env.SMS_QUEUE_URL);
+    
+  } catch (error: unknown) {
+    console.log(`ReceiveSms -- Error: ${error}`)
+    if (error instanceof Error) {
+      // Check if the error is due to a missing environment variable
+      if (error.message === 'SMS_QUEUE_URL environment variable is not set') {
+        return createResponse(500, { error: `Server configuration error: ${error.message}` });
       }
     }
-  } catch (error) {
-    console.log(error)
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: `Invalid Request Content: ${error}`
-      })
-    }
+    // Default case for other errors
+    return createResponse(400, { error: `Invalid Request Content: ${error}` });
   }
-}
+};
