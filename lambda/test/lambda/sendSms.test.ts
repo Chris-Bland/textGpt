@@ -6,7 +6,7 @@ import { sendSms } from '../../utils/twilio.utils';
 
 jest.mock('twilio', () => {
   return jest.fn().mockImplementation(() => {
-    return {}; // return the mock implementation here
+    return {}; 
   });
 });
 jest.mock('../../utils/secrets.util');
