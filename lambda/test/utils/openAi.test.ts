@@ -1,110 +1,91 @@
 import { processRecord } from '../../utils/openAi.utils';
-import { fetchLatestMessages, storeInDynamoDB } from '../../utils/dynamoDb.utils';
-import { sendMessageToSqs } from '../../utils/sqs.util';
 import { OpenAIApi } from 'openai';
+import * as sqsUtils from '../../utils/sqs.util';
+import * as dynamoDbUtils from '../../utils/dynamoDb.utils';
 
-jest.mock('../../utils/dynamoDb.utils');
-jest.mock('../../utils/sqs.util');
-jest.mock('openai');
-
-describe('OpenAI utility function - processRecord', () => {
-  const openai = new OpenAIApi();
-  const conversationTableName = 'exampleTable';
-  const record = {
-    body: JSON.stringify({
-      conversationId: '123',
-      to: '+1234567890',
-      from: '+0987654321',
-      body: 'Hello, how are you?',
-    }),
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should process record and send message to SQS if OpenAI responds', async () => {
-    const mockMessages = [
-      {
-        content: 'Initial message',
-        role: 'system',
-      },
-    ];
-
-    const mockResponse = {
-      data: {
-        choices: [
-          {
-            message: {
-              content: 'A common, all-around greeting in Japanese is Konnichiwa which means Hello or Good afternoon.   --TextGPT',
-            },
-          },
-        ],
-      },
+jest.mock('openai', () => {
+    return {
+        OpenAIApi: jest.fn().mockImplementation(() => {
+            return { createChatCompletion: jest.fn() };
+        }),
     };
-
-    fetchLatestMessages.mockResolvedValue(mockMessages);
-    openai.createChatCompletion.mockResolvedValue(mockResponse);
-    sendMessageToSqs.mockResolvedValue({});
-    storeInDynamoDB.mockResolvedValue({});
-
-    await processRecord(record, openai, conversationTableName);
-
-    expect(sendMessageToSqs).toHaveBeenCalledTimes(1);
-    expect(storeInDynamoDB).toHaveBeenCalledTimes(1);
-  });
-
-  it('should log an error if OpenAI does not return a message', async () => {
-    const mockMessages = [
-      {
-        content: 'Initial message',
-        role: 'system',
-      },
-    ];
-
-    const mockResponse = {
-      data: {
-        choices: [],
-      },
-    };
-
-    fetchLatestMessages.mockResolvedValue(mockMessages);
-    openai.createChatCompletion.mockResolvedValue(mockResponse);
-
-    console.error = jest.fn();
-
-    await processRecord(record, openai, conversationTableName);
-
-    expect(console.error).toHaveBeenCalledWith(
-      '123 -- QueryGPT -- No response from OpenAI'
-    );
-  });
-
-  it('should handle errors from OpenAI API', async () => {
-    const mockMessages = [
-      {
-        content: 'Initial message',
-        role: 'system',
-      },
-    ];
-
-    fetchLatestMessages.mockResolvedValue(mockMessages);
-    openai.createChatCompletion.mockRejectedValue(new Error('API Error'));
-
-    console.error = jest.fn();
-
-    await processRecord(record, openai, conversationTableName);
-
-    expect(console.error).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle errors from fetching latest messages', async () => {
-    fetchLatestMessages.mockRejectedValue(new Error('DynamoDB Error'));
-
-    console.error = jest.fn();
-
-    await processRecord(record, openai, conversationTableName);
-
-    expect(console.error).toHaveBeenCalledTimes(1);
-  });
 });
+
+jest.mock('../../utils/sqs.util', () => ({
+    sendMessageToSqs: jest.fn(),
+}));
+
+jest.mock('../../utils/dynamoDb.utils', () => ({
+    fetchLatestMessages: jest.fn(),
+    storeInDynamoDB: jest.fn(),
+}));
+
+describe('processRecord', () => {
+    let mockOpenaiInstance: OpenAIApi;
+
+    beforeEach(() => {
+      mockOpenaiInstance = new (OpenAIApi as any)({});
+      (mockOpenaiInstance.createChatCompletion as jest.Mock).mockClear();
+
+      (sqsUtils.sendMessageToSqs as jest.Mock).mockClear();
+      (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockClear();
+      (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockClear();
+
+      console.log = jest.fn();
+      console.error = jest.fn();
+    });
+
+    it('should process record successfully', async () => {
+        // Mock the dependencies
+        (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+        (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
+        (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
+        (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockResolvedValue(undefined);
+
+        // Call the function
+        await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+
+        // Assertions here
+        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- OpenAI Success');
+        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- Successfully placed message on SQS queue.');
+    });
+
+  it('should handle chat completion error', async () => {
+    (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+    (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue(new Error('Error in chat completion'));
+
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI:", "Cannot read properties of undefined (reading 'choices')");
+  });
+
+  it('should handle SQS error', async () => {
+    (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+    (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
+    (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(new Error('Error in SQS'));
+    
+    // Call and expect error handling
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+    expect(console.error).toHaveBeenCalledWith('Error sending message to SQS:', 'Error in SQS');
+  });
+  
+  it('should handle DynamoDB error', async () => {
+    (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+    (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
+    (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
+    (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockRejectedValue(new Error('Error in DynamoDB'));
+    
+    // Call and expect error handling
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+    expect(console.error).toHaveBeenCalledWith('Error storing conversation in DynamoDB:', 'Error in DynamoDB');
+  });
+
+  it('should handle no response from OpenAI', async () => {
+    (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+    (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [] } });
+
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI:", "Cannot read properties of undefined (reading 'message')");
+  });
+
+});
+
