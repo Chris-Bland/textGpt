@@ -24,7 +24,7 @@ export const sendMessageToSqs = async (message: { conversationId: string, to: st
   }
 }
 
-export const processMessage = async (message: any, queueUrl: string) => {
+export const processMessage = async (message: any, queueUrl: string|undefined) => {
   try {
     await sendMessageToSqs(message, 'ReceiveSMS', queueUrl)
     return createResponse(200, { message: `Success! ConversationID: ${message.conversationId}.` })
