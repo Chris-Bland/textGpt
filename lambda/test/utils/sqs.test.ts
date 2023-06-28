@@ -24,8 +24,6 @@ jest.mock('aws-sdk', () => {
     };
 });
 
-  
-
 describe('sendMessageToSqs', () => {
   let sqs: { sendMessage: jest.Mock };
   let consoleError: jest.SpyInstance;
