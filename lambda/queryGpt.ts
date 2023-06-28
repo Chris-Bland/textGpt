@@ -4,6 +4,9 @@ import { processRecord } from './utils/openAi.utils'
 import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: any): Promise<any> => {
+  if (!process.env.ERROR_QUEUE_URL) {
+    throw new Error('QueryGPT -- ERROR_QUEUE_URL is undefined.')
+  }
   try {
     const secrets = await getSecret('ChatGPTSecrets')
     console.log(`GPT -- ${JSON.stringify(event.Records)}`)
