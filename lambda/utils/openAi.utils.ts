@@ -94,16 +94,16 @@ export async function processRecord(record: Record, openai: OpenAIApi, conversat
 
     switch (errorInstance.constructor) {
       case ChatCompletionError:
-        console.error('Error creating chat completion with OpenAI:', errorMessage);
+        console.error(`Error creating chat completion with OpenAI: ${errorMessage}`);
         break;
       case SqsError:
-        console.error('Error sending message to SQS:', errorMessage);
+        console.error(`Error sending message to SQS: ${errorMessage}`);
         break;
       case DynamoDbError:
-        console.error('Error storing conversation in DynamoDB:', errorMessage);
+        console.error(`Error storing conversation in DynamoDB: ${errorMessage}`);
         break;
       default:
-        console.error('Error processing record:', errorMessage);
+        console.error(`Error processing record: ${errorMessage}`);
         break;
     }
   }
