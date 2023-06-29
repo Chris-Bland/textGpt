@@ -14,6 +14,7 @@ TextGPT bridges the gap between telephony and Conversational AI by integrating t
 - Detailed logging for monitoring and troubleshooting.
 - Conversation context stored using AWS DynamoDB (Can reply to "Tell me more about 'that'")
 - Infrastructure as Code
+- 100% Code Coverage with Jest testcases
 
 ## System Components
 
@@ -23,9 +24,7 @@ TextGPT is built using the AWS Cloud Development Kit (CDK) and consists of sever
 
 2. **queryGpt**: Retrieves messages from the SQS queue, constructs a prompt based on the message content and conversation history (stored in DynamoDB), and generates a prompt to send to the openAI API. The AI-generated response is then enqueued into a separate SQS queue for delivery and the new response is added to the Conversations DynamoDB table
 
-3. **sendSms**: Retrieves the AI response from the SQS queue and sends it as an SMS reply using the Twilio API.
-
-4. **errorSms**: Triggered by all Lambdas. Retrieves error messages from the SQS queue and sends an SMS error message to the user using the Twilio API.
+3. **sendSms**: Retrieves the either the bundled message for the sender, or a system error message from one of two SQS queues, and sends it as an SMS reply using the Twilio API.
 
 
 ## Logging
@@ -41,7 +40,11 @@ INFO SMb1f9a545ebbc89d7669b438753a82a6c -- SendSMS -- Sending message to Twilio
 
 The `ConversationId` is consistent across logs for the same message, making it easier to trace its progression through the system.
 
-## Configuration
+## Test Coverage
+
+Featuring over 45 comprehensive testcases, 100% of the testGpt codebase is covered by Jest test cases and ready for CI/CD checks.
+<img width="321" alt="Screenshot 2023-06-29 at 4 03 42 PM" src="https://github.com/Chris-Bland/textGpt/assets/27901095/a29adc88-ae82-4eef-87f3-aad4268897e8">
+
 
 ### Changing the OpenAI Model
 
