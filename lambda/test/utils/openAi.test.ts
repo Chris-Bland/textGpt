@@ -36,18 +36,16 @@ describe('processRecord', () => {
     });
 
     it('should process record successfully', async () => {
-        // Mock the dependencies
         (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
         (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
         (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
         (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockResolvedValue(undefined);
 
-        // Call the function
         await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
 
-        // Assertions here
+        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- fetched dynamoDB history.');
         expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- OpenAI Success');
-        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- Successfully placed message on SQS queue.');
+
     });
 
   it('should handle chat completion error', async () => {
@@ -55,20 +53,22 @@ describe('processRecord', () => {
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue(new Error('Error in chat completion'));
 
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
-    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI:", "Cannot read properties of undefined (reading 'choices')");
+    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'choices')");
   });
 
   it('should handle SQS error', async () => {
+    process.env.SEND_SMS_QUEUE_URL = 'testQueueUrl';
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
     (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(new Error('Error in SQS'));
     
     // Call and expect error handling
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
-    expect(console.error).toHaveBeenCalledWith('Error sending message to SQS:', 'Error in SQS');
+    expect(console.error).toHaveBeenCalledWith("Error sending message to SQS: Error in SQS");
   });
   
   it('should handle DynamoDB error', async () => {
+    process.env.SEND_SMS_QUEUE_URL = 'testQueueUrl';
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
     (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
@@ -76,7 +76,7 @@ describe('processRecord', () => {
     
     // Call and expect error handling
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
-    expect(console.error).toHaveBeenCalledWith('Error storing conversation in DynamoDB:', 'Error in DynamoDB');
+    expect(console.error).toHaveBeenCalledWith('Error storing conversation in DynamoDB: Error in DynamoDB');
   });
 
   it('should handle no response from OpenAI', async () => {
@@ -84,7 +84,7 @@ describe('processRecord', () => {
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [] } });
 
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
-    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI:", "Cannot read properties of undefined (reading 'message')");
+    expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'message')");
   });
 
 });

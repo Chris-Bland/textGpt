@@ -35,6 +35,9 @@ async function createChatCompletion(openai: OpenAIApi, messages: any[]): Promise
 async function sendToSqs(conversationId: string, to: string, from: string, body: string): Promise<void> {
   try {
     const message = { conversationId, to, from, body };
+    if (!process.env.SEND_SMS_QUEUE_URL) {
+      throw new Error('SEND_SMS_QUEUE_URL environment variable is not set')
+    }
     await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL);
   } catch (error) {
     if (error instanceof Error) {

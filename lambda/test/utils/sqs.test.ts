@@ -50,6 +50,16 @@ describe('sendMessageToSqs', () => {
     expect(consoleLog).toHaveBeenCalled();
   });
 
+  it('should error when no queryUrl is provided', async () => {
+    await sendMessageToSqs({
+      conversationId: '123',
+      to: '+123456789',
+      from: '+198765432',
+      body: 'Test Body!'
+    }, 'lambda', '');
+    expect(consoleError).toHaveBeenCalled();
+  });
+
   it('should log an error and throw an error when there is an issue in sending a message to the SQS', async () => {
     const mockSQS = {
       sendMessage: jest.fn().mockReturnValue({
