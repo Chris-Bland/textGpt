@@ -63,9 +63,11 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     queryGpt.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName)
+    queryGpt.addEnvironment('model',envConfig.model )
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
+
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)

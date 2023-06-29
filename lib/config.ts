@@ -19,5 +19,6 @@ export const envConfig = {
     bundling: {
       nodeModules: ['twilio']
     }
-  }
+  },
+  model: 'gpt-3.5-turbo'
 }
