@@ -2,6 +2,8 @@
 *.d.ts
 node_modules
 .env
+/lambda/coverage
+/coverage
 
 # CDK asset staging directory
 .cdk.staging
