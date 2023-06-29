@@ -85,7 +85,6 @@ describe('processRecord', () => {
     expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'message')");
   });
 
-// Line 30
 it('should log an error other than ChatCompletionError in createChatCompletion', async () => {
   const fakeError = { message: 'fake error' };
   const consoleSpy = jest.spyOn(console, 'error');
@@ -95,7 +94,6 @@ it('should log an error other than ChatCompletionError in createChatCompletion',
   expect(consoleSpy).toHaveBeenCalledWith('Error processing record: fake error');
 });
 
-// Line 46
 it('should log an error other than SqsError in sendToSqs', async () => {
   const fakeError = { message: 'fake error' };
   const consoleSpy = jest.spyOn(console, 'error');
@@ -106,7 +104,6 @@ it('should log an error other than SqsError in sendToSqs', async () => {
   expect(consoleSpy).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'data')");
 });
 
-// Line 69
 it('should log an error other than DynamoDbError in storeConversationInDynamoDB', async () => {
   const fakeError = { message: 'fake error' };
   const consoleSpy = jest.spyOn(console, 'error');
