@@ -20,5 +20,9 @@ export const envConfig = {
       nodeModules: ['twilio']
     }
   },
-  model: 'gpt-3.5-turbo'
+  model: 'gpt-3.5-turbo',
+  github: {
+    GITHUB_OWNER: 'Chris-Bland',
+    GITHUB_REPO: 'textGpt'
+  }
 }

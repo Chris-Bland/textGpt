@@ -8,7 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, GITHUB_TOKEN, GITHUB_REPO, GITHUB_OWNER } from './text-gpt.constants'
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -63,7 +63,7 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     queryGpt.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName)
-    queryGpt.addEnvironment('model',envConfig.model )
+    queryGpt.addEnvironment(MODEL,envConfig.model )
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)

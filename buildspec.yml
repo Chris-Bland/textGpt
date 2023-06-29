@@ -1,14 +1,36 @@
-version: 0.2
+version: 1.2
 
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      nodejs: 16 
     commands:
+      - echo Installing source NPM dependencies...
       - npm install
+      - echo Installing AWS CDK...
+      - npm install -g aws-cdk
+      
+  pre_build:
+    commands:
+      - echo Compiling TypeScript...
+      - npm run build 
+
   build:
     commands:
+      - echo Build started on `date`
+      - echo Running tests...
+      - npm test 
+      - echo Running lambda and utils tests
+      - cd ./lambda
       - npm test
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Deploying with CDK...
+      - cdk deploy --require-approval never # 
+
 artifacts:
   files:
     - '**/*'
+  discard-paths: no

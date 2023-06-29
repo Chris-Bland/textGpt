@@ -83,8 +83,9 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 
 1. Clone the TextGPT repository to your local machine.
 2. Navigate to the project directory and run `npm install` to install dependencies.
-3. Build the CDK stack by running `cdk build`.
-4. Deploy the stack to your AWS account by running `cdk deploy`. This command also creates the necessary resources in your AWS account.
+3. Bootstrap the environment with `cdk bootstrap`.
+4. Build the CDK stack by running `cdk build`.
+5. Deploy the stack to your AWS account by running `cdk deploy`. This command also creates the necessary resources in your AWS account.
 
 ## Monitoring and Troubleshooting
 
