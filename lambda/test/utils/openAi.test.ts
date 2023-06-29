@@ -62,7 +62,6 @@ describe('processRecord', () => {
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
     (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(new Error('Error in SQS'));
     
-    // Call and expect error handling
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
     expect(console.error).toHaveBeenCalledWith("Error sending message to SQS: Error in SQS");
   });
@@ -74,7 +73,6 @@ describe('processRecord', () => {
     (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
     (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockRejectedValue(new Error('Error in DynamoDB'));
     
-    // Call and expect error handling
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
     expect(console.error).toHaveBeenCalledWith('Error storing conversation in DynamoDB: Error in DynamoDB');
   });
@@ -86,6 +84,53 @@ describe('processRecord', () => {
     await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
     expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'message')");
   });
+
+// Line 30
+it('should log an error other than ChatCompletionError in createChatCompletion', async () => {
+  const fakeError = { message: 'fake error' };
+  const consoleSpy = jest.spyOn(console, 'error');
+  (mockOpenaiInstance.createChatCompletion as jest.Mock).mockRejectedValue(fakeError);
+
+  await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+  expect(consoleSpy).toHaveBeenCalledWith('Error processing record: fake error');
+});
+
+// Line 46
+it('should log an error other than SqsError in sendToSqs', async () => {
+  const fakeError = { message: 'fake error' };
+  const consoleSpy = jest.spyOn(console, 'error');
+  process.env.SEND_SMS_QUEUE_URL = 'testQueueUrl';
+  (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(fakeError);
+
+  await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+  expect(consoleSpy).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'data')");
+});
+
+// Line 69
+it('should log an error other than DynamoDbError in storeConversationInDynamoDB', async () => {
+  const fakeError = { message: 'fake error' };
+  const consoleSpy = jest.spyOn(console, 'error');
+  (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockRejectedValue(fakeError);
+
+  await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+  expect(consoleSpy).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'data')");
+});
+
+it('should handle unknown error type in processRecord', async () => {
+  const fakeError = { message: 'fake error' };
+  (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockRejectedValue(fakeError);
+
+  await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+  expect(console.error).toHaveBeenCalledWith('Error processing record: fake error');
+});
+
+it('should handle null message content from OpenAI', async () => {
+  (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
+  (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: null }] } });
+
+  await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
+  expect(console.error).toHaveBeenCalledWith('1 -- QueryGPT -- No response from OpenAI');
+});
 
 });
 

@@ -59,6 +59,63 @@ describe('sendSms Lambda Function', () => {
         body: JSON.stringify({ message: 'default message' }),
       });
     });
+
+    it('should log test success and return 200 for TWILIO_TEST_NUMBER', async () => {
+      const event = {
+        Records: [
+          {
+            body: JSON.stringify({
+              conversationId: '12345',
+              to: 'TEST123',
+              from: '0987654321',
+              body: 'Test message',
+              lambda: 'sendSms',
+            }),
+          },
+        ],
+      };
+  
+      const response = await handler(event);
+  
+      expect(response).toEqual({
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'default message' }),
+      });
+    });
+  
+    it('should log error and send error SMS for ERROR_QUEUE_ARN', async () => {
+      process.env.ERROR_QUEUE_ARN = 'error_queue_arn';
+  
+      const event = {
+        Records: [
+          {
+            body: JSON.stringify({
+              conversationId: '12345',
+              to: '1234567890',
+              from: '0987654321',
+              body: 'Test message',
+              lambda: 'sendSms',
+            }),
+            eventSourceARN: 'error_queue_arn',
+          },
+        ],
+      };
+  
+      mockSendSms.mockResolvedValue({
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'error message' }),
+      });
+  
+      const response = await handler(event);
+  
+      expect(response).toEqual({
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'error message' }),
+      });
+    });
   
     it('should return error when SMS sending fails', async () => {
       mockSendSms.mockResolvedValueOnce({

@@ -14,10 +14,16 @@ const mockProcessRecord = processRecord as jest.MockedFunction<typeof processRec
 const mockSendMessageToSqs = sendMessageToSqs as jest.MockedFunction<typeof sendMessageToSqs>;
 
 describe('queryGPT Lambda Function', () => {
+  let originalErrorQueueUrl: string | undefined;
   beforeEach(() => {
+    originalErrorQueueUrl = process.env.ERROR_QUEUE_URL;
     jest.resetAllMocks();
     process.env.CONVERSATION_TABLE_NAME = 'test-table-name';
     process.env.ERROR_QUEUE_URL = 'https://example.com/error_queue';
+  });
+
+  afterEach(() => {
+    process.env.ERROR_QUEUE_URL = originalErrorQueueUrl;
   });
 
   it('should process records successfully', async () => {
@@ -43,6 +49,14 @@ describe('queryGPT Lambda Function', () => {
       'QueryGPT',
       process.env.ERROR_QUEUE_URL
     );
+  });
+
+  it('should throw an error message if ERROR_QUEUE_URL environment variable is not set', async () => {
+    delete process.env.ERROR_QUEUE_URL;
+
+    const event = { Records: [{ body: { conversationId: '123', to: '1234567890', from: '0987654321', message: 'Test message' } }] };
+    
+    await expect(handler(event)).rejects.toThrow('QueryGPT -- ERROR_QUEUE_URL is undefined.');
   });
 
   it('should throw error when CONVERSATION_TABLE_NAME environment variable is missing', async () => {

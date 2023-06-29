@@ -66,6 +66,20 @@ describe('DynamoDB utility functions', () => {
       expect(result[2].role).toBe('system');
       expect(result[2].content).toBe(mockResult.Items[0].response);
     });
+
+  it('should throw an error when fetching messages fails', async () => {
+    mockQuery.mockImplementation(() => {
+      return {
+        promise: () => Promise.reject(new Error('Fetching failed'))
+      };
+    });
+
+    const senderNumber = '+18436405233';
+    const tableName = 'exampleTable';
+    const body = 'Hello';
+
+    await expect(fetchLatestMessages(senderNumber, tableName, body)).rejects.toThrow('Fetching failed');
+  });
   });
 
   describe('storeInDynamoDB', () => {
@@ -85,5 +99,24 @@ describe('DynamoDB utility functions', () => {
 
       expect(mockPut).toHaveBeenCalledWith(params);
     });
+
+  it('should throw an error when storing data fails', async () => {
+    mockPut.mockImplementation(() => {
+      return {
+        promise: () => Promise.reject(new Error('Storing failed'))
+      };
+    });
+
+    const params = {
+      TableName: 'exampleTable',
+      Item: {
+        conversationId: '123',
+        message: 'Hello, World!',
+      },
+    };
+    const conversationId = '123';
+
+    await expect(storeInDynamoDB(params, conversationId)).rejects.toThrow('Storing failed');
+  });
   });
 });
