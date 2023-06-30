@@ -16,6 +16,8 @@ phases:
       
   pre_build:
     commands:
+      - echo Current Account ID: $(aws sts get-caller-identity --query Account --output text)
+      - echo Current Region: $(aws configure get region)
       - echo Compiling TypeScript...
       - npm run build 
 
