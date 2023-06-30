@@ -10,6 +10,7 @@ phases:
       - echo Installing Lambda NPM dependencies...
       - cd ./lambda
       - npm install
+      - cd ..
       - echo Installing AWS CDK...
       - npm install -g aws-cdk
       
