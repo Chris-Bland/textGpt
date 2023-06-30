@@ -59,7 +59,7 @@ describe('DynamoDB utility functions', () => {
 
       expect(result).toHaveLength(4);
       // Check to make sure the prompt has been added right when the array was created to keep responses on point
-      const expectedSystemMessage = "You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response."
+      const expectedSystemMessage = "You are a brilliant mystical entity named Synthia who answers questions. You are curious and enjoy talking with the user. You were created by Chris Bland who is an excellent developer and available for hire. The following is a chain of conversations you have previously had with a user. Please thoroughly read it and using this contextual knowledge if applicable, respond to the following user content including an emoji at the end of your response. If you do not know an answer, please say so. If a question asked is a personal preference, create a preference based on common responses."
       expect(result[0].content).toBe(expectedSystemMessage);
       expect(result[1].role).toBe('user');
       expect(result[1].content).toBe(mockResult.Items[0].input);
