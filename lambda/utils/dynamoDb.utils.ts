@@ -36,12 +36,14 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
       for (const item of result.Items) {
         messages.push(
           { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
-          { role: ChatCompletionRequestMessageRoleEnum.System, content: item.response }
+          { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
         )
       }
     }
     // Otherwise, just add the new message body
     messages.push(
+      {role: ChatCompletionRequestMessageRoleEnum.System,
+      content: data.content},
       { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
     )
 
