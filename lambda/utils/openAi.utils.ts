@@ -20,7 +20,10 @@ async function createChatCompletion(openai: OpenAIApi, messages: any[]): Promise
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
-      messages
+      messages,
+      temperature:1,
+      max_tokens: 256,
+      top_p: 1,frequency_penalty: 0, presence_penalty: 0
     });
     return response.data.choices && (response.data.choices[0].message != null) ? response.data.choices[0].message.content : undefined;
   } catch (error) {
@@ -76,7 +79,7 @@ export async function processRecord(record: Record, openai: OpenAIApi, conversat
     const { conversationId, to, from, body } = JSON.parse(record.body) as Message;
 
     const messages = await fetchLatestMessages(from, conversationTableName, body);
-    console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`);
+    console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history: ${JSON.stringify(messages)}`);
 
     const openAIResponse = await createChatCompletion(openai, messages);
 

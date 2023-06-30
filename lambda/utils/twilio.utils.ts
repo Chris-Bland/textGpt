@@ -19,7 +19,7 @@ export function parseTwilioEventValues (requestBody: string) {
 export async function sendSms (client: any, to: string, from: string, body: string) {
   try {
     const message = await client.messages.create({
-      body: body + '    --Synthia2',
+      body: body + '    --Synthia',
       from: to,
       to: from
     })
