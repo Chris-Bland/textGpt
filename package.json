@@ -1,6 +1,6 @@
 {
   "name": "text_gpt",
-  "version": "0.1.0",
+  "version": "Sample",
   "bin": {
     "text_gpt": "bin/text_gpt.js"
   },
