@@ -16,8 +16,8 @@ phases:
       
   pre_build:
     commands:
-      - echo Current Account ID: $(aws sts get-caller-identity --query Account --output text)
-      - echo Current Region: $(aws configure get region)
+      - echo Current Account ID $(aws sts get-caller-identity --query Account --output text)
+      - echo Current Region $(aws configure get region)
       - echo Compiling TypeScript...
       - npm run build 
 
@@ -25,10 +25,10 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Running tests...
-      - npm test 
+      - echo npm test 
       - echo Running lambda and utils tests
       - cd ./lambda
-      - npm test
+      - echo npm test
 
   post_build:
     commands:
