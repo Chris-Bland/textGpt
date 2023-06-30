@@ -25,10 +25,10 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Running tests...
-      - echo npm test 
+      - npm test 
       - echo Running lambda and utils tests
       - cd ./lambda
-      - echo npm test
+      - npm test
       - cd ..
 
   post_build:
