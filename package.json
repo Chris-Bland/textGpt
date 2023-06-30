@@ -13,7 +13,6 @@
     "lint:fix": "eslint --fix 'lib/**/*.{js,ts}' 'lambda/**/*.{js,ts}'"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^2.68.0",
     "@types/jest": "^29.5.2",
     "@types/node": "20.1.7",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
@@ -31,13 +30,6 @@
     "typescript": "~5.0.4"
   },
   "dependencies": {
-    "@aws-cdk/aws-codebuild": "^1.204.0",
-    "@aws-cdk/aws-codepipeline": "^1.204.0",
-    "@aws-cdk/aws-codepipeline-actions": "^1.204.0",
-    "@aws-cdk/aws-lambda-event-sources": "^1.203.0",
-    "@aws-cdk/aws-sqs": "^1.203.0",
-    "@aws-cdk/core": "^1.204.0",
-    "@aws-cdk/pipelines": "^1.204.0",
     "asynckit": "^0.4.0",
     "aws-cdk-lib": "2.83.1",
     "combined-stream": "^1.0.8",

@@ -7,6 +7,9 @@ phases:
     commands:
       - echo Installing source NPM dependencies...
       - npm install
+      - echo Installing Lambda NPM dependencies...
+      - cd ./lambda
+      - npm install
       - echo Installing AWS CDK...
       - npm install -g aws-cdk
       
