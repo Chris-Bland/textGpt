@@ -17,7 +17,7 @@ phases:
   pre_build:
     commands:
       - echo Compiling TypeScript...
-      - npm run build 
+      - echo npm run build 
 
   build:
     commands:
