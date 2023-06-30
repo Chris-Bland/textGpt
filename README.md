@@ -43,6 +43,7 @@ The `ConversationId` is consistent across logs for the same message, making it e
 ## Test Coverage
 
 Featuring over 40 comprehensive testcases, 100% of the testGpt codebase is covered by Jest test cases and ready for CI/CD checks.
+
 <img width="321" alt="Screenshot 2023-06-29 at 4 03 42 PM" src="https://github.com/Chris-Bland/textGpt/assets/27901095/a29adc88-ae82-4eef-87f3-aad4268897e8">
 
 
