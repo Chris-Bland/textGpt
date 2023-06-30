@@ -29,6 +29,7 @@ phases:
       - echo Running lambda and utils tests
       - cd ./lambda
       - echo npm test
+      - cd ..
 
   post_build:
     commands:
