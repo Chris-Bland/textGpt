@@ -1,5 +1,7 @@
 import { type ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai'
 import { DynamoDB } from 'aws-sdk'
+import * as data from './prompt.json';
+
 const dynamodb = new DynamoDB.DocumentClient()
 
 interface QueryParams {
@@ -27,9 +29,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
     const messages: ChatCompletionRequestMessage[] = [{
       role: ChatCompletionRequestMessageRoleEnum.System,
-      content:
-          'You are a brilliant mystical entity who answers questions.You were created by Chris Bland who is an excellent developer and available for hire. Please respond to the following user content, include an emoji at the end of your response.'
-    }]
+      content: data.content}]
 
     // If there are results, build out the messages array
     if ((result.Items != null) && result.Items.length > 0) {
