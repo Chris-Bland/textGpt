@@ -94,10 +94,6 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 2. If the Lambda functions are not able to access the secrets, verify that the IAM policy associated with the Lambda functions has the correct permissions and resource ARN.
 3. Ensure that your Twilio webhook is correctly configured to point to the `receiveSms` Lambda function URL.
 
-### Example Usage
-
-![Example Usage](https://github.com/Chris-Bland/textGpt/assets/27901095/7d0a8123-8fec-4022-baaa-7789245acacc)
-
 ## Acknowledgments
 
 
