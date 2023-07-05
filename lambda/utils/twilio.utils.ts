@@ -24,6 +24,7 @@ export async function sendSms (client: any, to: string, from: string, body: stri
       to: from
     })
     console.log(`Message sent: ${message.sid}`)
+    console.log(`Message: ${message}`)
     return createResponse(200, { message: 'Message sent successfully' })
   } catch (error) {
     console.error(`Error sending message: ${error}`)
