@@ -5,7 +5,6 @@ const secretsManager = new SecretsManager()
 export async function getSecret (secretName: string): Promise<any> {
   try {
     const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise()
-    console.log(`secretName: ${secretName}. data: ${JSON.stringify(data)}`);
     if ('SecretString' in data && data.SecretString) {
       return JSON.parse(data.SecretString)
     } else {
