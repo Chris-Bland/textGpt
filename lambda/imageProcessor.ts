@@ -5,13 +5,13 @@ import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: any): Promise<any> => {
   if (!process.env.ERROR_QUEUE_URL) {
-    throw new Error('QueryGPT -- ERROR_QUEUE_URL is undefined.')
+    throw new Error('ImageProcessor -- ERROR_QUEUE_URL is undefined.')
   }
   try {
     const secrets = await getSecret('ChatGPTSecrets')
 
     if (!secrets || !secrets.OPENAI_API_KEY) {
-      throw new Error('QueryGPT -- Unable to retrieve OpenAI API Key from secrets')
+      throw new Error('ImageProcessor -- Unable to retrieve OpenAI API Key from secrets')
     }
 
     const configuration = new Configuration({

@@ -1,6 +1,8 @@
 import { type OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './sqs.util'
 import { fetchLatestMessages, storeInDynamoDB } from './dynamoDb.utils'
+import { delimiterCheck } from './common.utils'
+import { delimiter } from 'path'
 
 interface Record {
   body: string
@@ -37,13 +39,17 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[]): Promis
   }
 }
 
-async function sendToSqs (conversationId: string, to: string, from: string, body: string): Promise<void> {
+async function sendToSqs (conversationId: string, to: string, from: string, body: string, imagePrompt?: string): Promise<void> {
   try {
     const message = { conversationId, to, from, body }
     if (!process.env.SEND_SMS_QUEUE_URL) {
       throw new Error('SEND_SMS_QUEUE_URL environment variable is not set')
     }
-    await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL)
+    if (imagePrompt) {
+      // await sendMessageToSqs(message, 'QueryGPT', process.env.GENERATE_IMAGE_QUEUE_URL)
+    } else {
+      await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL)
+    }
   } catch (error) {
     if (error instanceof Error) {
       throw new SqsError(error.message)
@@ -87,22 +93,15 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
 
     if (openAIResponse) {
       console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`)
+      const { body, imagePrompt } = delimiterCheck(openAIResponse)
 
-      //TODO
-      /*
-      --Check if there is a delimited response in the most recent User role item's content
-      --If so, remove it and store it in a variable
-      --Send it to the Dall-e processor with pre-processing prompt generation and generate an image
-      --If it fails or there is no delimited content, just sendToSqs as normal and store the conversation
-      --If we get an image back:
-      ---- store image in S3 with the conversationId as the name and metadata including the prompt
-      ---- send message to an mms sqs queue
-      ---- store the conversation in dynamo as normal
-      */
-
-      await sendToSqs(conversationId, to, from, openAIResponse)
-      console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
-
+      if (imagePrompt === '') {
+        await sendToSqs(conversationId, to, from, openAIResponse)
+        console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
+      } else {
+        await sendToSqs(conversationId, to, from, openAIResponse, imagePrompt)
+        console.log(`${conversationId} -- QueryGPT -- Successfully placed Image message on SQS queue.`)
+      }
       await storeConversationInDynamoDB(conversationTableName, from, to, body, openAIResponse, conversationId)
     } else {
       console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`)

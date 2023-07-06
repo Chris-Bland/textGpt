@@ -1,6 +1,6 @@
 import { type ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai'
 import { DynamoDB } from 'aws-sdk'
-import * as data from './prompt.json'
+import * as data from './prompt2.0.json'
 
 const dynamodb = new DynamoDB.DocumentClient()
 
