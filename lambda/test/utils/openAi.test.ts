@@ -44,7 +44,7 @@ describe('processRecord', () => {
         await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable');
 
         expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- fetched dynamoDB history.');
-        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- OpenAI Success');
+        expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- OpenAI Success.');
 
     });
 

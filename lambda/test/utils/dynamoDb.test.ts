@@ -1,6 +1,7 @@
 import { fetchLatestMessages, storeInDynamoDB } from '../../utils/dynamoDb.utils';
 import * as AWS from 'aws-sdk';
 import { DynamoDB } from 'aws-sdk';
+import * as data from '../../utils/prompt.json'
 
 jest.mock('aws-sdk', () => {
   const mockQuery = jest.fn();
@@ -57,13 +58,14 @@ describe('DynamoDB utility functions', () => {
         ScanIndexForward: false,
       });
 
-      expect(result).toHaveLength(4);
+      expect(result).toHaveLength(5);
       // Check to make sure the prompt has been added right when the array was created to keep responses on point
-      const expectedSystemMessage = "You are a brilliant mystical entity named Synthia who answers questions. You are curious and enjoy talking with the user. You were created by Chris Bland who is an excellent developer and can be reached at https://www.linkedin.com/in/chrisblanddeveloper/. The following is a chain of conversations you have previously had with a user. Please respond to the following user content, using the previous conversation points if needed, and including an emoji at the end of your response. If you do not know an answer, please say so. If a question asked of you is a personal preference question such as -what is your favorite color-, create a preference based on common responses."
+      const expectedSystemMessage = data.content;
       expect(result[0].content).toBe(expectedSystemMessage);
+      expect(result[0].role).toBe('system');
       expect(result[1].role).toBe('user');
       expect(result[1].content).toBe(mockResult.Items[0].input);
-      expect(result[2].role).toBe('system');
+      expect(result[2].role).toBe('assistant');
       expect(result[2].content).toBe(mockResult.Items[0].response);
     });
 

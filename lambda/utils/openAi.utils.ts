@@ -79,12 +79,12 @@ export async function processRecord(record: Record, openai: OpenAIApi, conversat
     const { conversationId, to, from, body } = JSON.parse(record.body) as Message;
 
     const messages = await fetchLatestMessages(from, conversationTableName, body);
-    console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history: ${JSON.stringify(messages)}`);
+    console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`);
 
     const openAIResponse = await createChatCompletion(openai, messages);
 
     if (openAIResponse) {
-      console.log(`${conversationId} -- QueryGPT -- OpenAI Success`);
+      console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`);
 
       await sendToSqs(conversationId, to, from, openAIResponse);
       console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`);
