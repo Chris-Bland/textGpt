@@ -88,6 +88,18 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
     if (openAIResponse) {
       console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`)
 
+      //TODO
+      /*
+      --Check if there is a delimited response in the most recent User role item's content
+      --If so, remove it and store it in a variable
+      --Send it to the Dall-e processor with pre-processing prompt generation and generate an image
+      --If it fails or there is no delimited content, just sendToSqs as normal and store the conversation
+      --If we get an image back:
+      ---- store image in S3 with the conversationId as the name and metadata including the prompt
+      ---- send message to an mms sqs queue
+      ---- store the conversation in dynamo as normal
+      */
+
       await sendToSqs(conversationId, to, from, openAIResponse)
       console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
 
