@@ -1,6 +1,6 @@
 import { type ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai'
 import { DynamoDB } from 'aws-sdk'
-import * as data from './prompt.json';
+import * as data from './prompt.json'
 
 const dynamodb = new DynamoDB.DocumentClient()
 
@@ -29,7 +29,8 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
     const messages: ChatCompletionRequestMessage[] = [{
       role: ChatCompletionRequestMessageRoleEnum.System,
-      content: data.content}]
+      content: data.content
+    }]
 
     // If there are results, build out the messages array
     if ((result.Items != null) && result.Items.length > 0) {
@@ -42,8 +43,10 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     }
     // Otherwise, just add the new message body
     messages.push(
-      {role: ChatCompletionRequestMessageRoleEnum.System,
-      content: data.content},
+      {
+        role: ChatCompletionRequestMessageRoleEnum.System,
+        content: data.content
+      },
       { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
     )
 

@@ -17,7 +17,7 @@ export const sendMessageToSqs = async (message: { conversationId: string, to: st
   }
 
   try {
-    console.log(params);
+    console.log(params)
     await sqs.sendMessage(params).promise()
     console.log(`${message.conversationId} -- ${lambda} -- Successfully put message on queue: ${JSON.stringify(params)}`)
   } catch (error) {

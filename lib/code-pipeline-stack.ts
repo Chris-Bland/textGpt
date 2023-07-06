@@ -10,8 +10,8 @@
 //     super(scope, id, props);
 
 //     new CodePipeline(this, 'Pipeline', {
-//       pipelineName: 'CDKTestPipeline',   
-//       synth: new ShellStep('Synth', {      
+//       pipelineName: 'CDKTestPipeline',
+//       synth: new ShellStep('Synth', {
 //         input: CodePipelineSource.gitHub(`${envConfig.github.GITHUB_OWNER}/${envConfig.github.GITHUB_REPO}`, 'main'), // replace the GitHub repository name with 'user-name/repository-name'
 
 //         commands: ['echo GOOD LORD WE MADE IT']
@@ -19,7 +19,6 @@
 //     })
 //   }
 // }
-
 
 // import { Construct } from 'constructs';
 // import * as cdk from 'aws-cdk-lib';
@@ -42,9 +41,9 @@
 //     const sourceOutput = new codepipeline.Artifact();
 //     const sourceAction = new codepipeline_actions.GitHubSourceAction({
 //       actionName: 'GitHub_Source',
-//       owner: envConfig.github.GITHUB_OWNER, 
+//       owner: envConfig.github.GITHUB_OWNER,
 //       repo: envConfig.github.GITHUB_REPO,
-//       oauthToken: cdk.SecretValue.secretsManager(GITHUB_TOKEN), 
+//       oauthToken: cdk.SecretValue.secretsManager(GITHUB_TOKEN),
 //       output: sourceOutput,
 //       branch: 'main',
 //     });
@@ -88,7 +87,7 @@
 //     //     actions: [
 //     //       new codepipelineActions.GitHubSourceAction({
 //     //         actionName: 'GitHub_Source',
-//     //         owner: envConfig.github.GITHUB_OWNER, 
+//     //         owner: envConfig.github.GITHUB_OWNER,
 //     //         repo: envConfig.github.GITHUB_REPO,
 //     //         oauthToken: cdk.SecretValue.secretsManager(GITHUB_TOKEN),
 //     //         output: sourceOutput,
@@ -118,6 +117,3 @@
 //     //       }),
 //     //     ],
 //     //   });
-  
-  
-  

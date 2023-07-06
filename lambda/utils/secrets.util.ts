@@ -9,7 +9,7 @@ export async function getSecret (secretName: string): Promise<any> {
       return JSON.parse(data.SecretString)
     } else {
       console.error('No SecretString found in the secret')
-      return null;
+      return null
     }
   } catch (error) {
     console.error(`Error retrieving secret: ${error}`)
