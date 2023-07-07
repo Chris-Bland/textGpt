@@ -20,6 +20,7 @@ describe('queryGPT Lambda Function', () => {
     jest.resetAllMocks()
     process.env.CONVERSATION_TABLE_NAME = 'test-table-name'
     process.env.ERROR_QUEUE_URL = 'https://example.com/error_queue'
+    process.env.MODEL = 'test-model'
   })
 
   afterEach(() => {
@@ -56,7 +57,7 @@ describe('queryGPT Lambda Function', () => {
 
     const event = { Records: [{ body: { conversationId: '123', to: '1234567890', from: '0987654321', message: 'Test message' } }] }
 
-    await expect(handler(event)).rejects.toThrow('QueryGPT -- ERROR_QUEUE_URL is undefined.')
+    await expect(handler(event)).rejects.toThrow('QueryGPT -- ERROR_QUEUE_URL is missing.')
   })
 
   it('should throw error when CONVERSATION_TABLE_NAME environment variable is missing', async () => {

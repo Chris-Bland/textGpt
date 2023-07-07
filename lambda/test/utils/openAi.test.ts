@@ -41,7 +41,7 @@ describe('processRecord', () => {
     (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
     (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockResolvedValue(undefined)
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body'}) }, mockOpenaiInstance, 'conversationTable','test-model')
 
     expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- fetched dynamoDB history.')
     expect(console.log).toHaveBeenCalledWith('1 -- QueryGPT -- OpenAI Success.')
@@ -51,7 +51,7 @@ describe('processRecord', () => {
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue(new Error('Error in chat completion'))
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body'}) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'choices')")
   })
 
@@ -61,7 +61,7 @@ describe('processRecord', () => {
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: { content: 'response' } }] } });
     (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(new Error('Error in SQS'))
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(console.error).toHaveBeenCalledWith('Error sending message to SQS: Error in SQS')
   })
 
@@ -72,7 +72,7 @@ describe('processRecord', () => {
     (sqsUtils.sendMessageToSqs as jest.Mock).mockResolvedValue(undefined);
     (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockRejectedValue(new Error('Error in DynamoDB'))
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(console.error).toHaveBeenCalledWith('Error storing conversation in DynamoDB: Error in DynamoDB')
   })
 
@@ -80,7 +80,7 @@ describe('processRecord', () => {
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [] } })
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(console.error).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'message')")
   })
 
@@ -89,7 +89,7 @@ describe('processRecord', () => {
     const consoleSpy = jest.spyOn(console, 'error');
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockRejectedValue(fakeError)
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(consoleSpy).toHaveBeenCalledWith('Error processing record: fake error')
   })
 
@@ -99,7 +99,7 @@ describe('processRecord', () => {
     process.env.SEND_SMS_QUEUE_URL = 'testQueueUrl';
     (sqsUtils.sendMessageToSqs as jest.Mock).mockRejectedValue(fakeError)
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable', 'test-model')
     expect(consoleSpy).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'data')")
   })
 
@@ -108,7 +108,7 @@ describe('processRecord', () => {
     const consoleSpy = jest.spyOn(console, 'error');
     (dynamoDbUtils.storeInDynamoDB as jest.Mock).mockRejectedValue(fakeError)
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable','test-model')
     expect(consoleSpy).toHaveBeenCalledWith("Error creating chat completion with OpenAI: Cannot read properties of undefined (reading 'data')")
   })
 
@@ -116,7 +116,7 @@ describe('processRecord', () => {
     const fakeError = { message: 'fake error' };
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockRejectedValue(fakeError)
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable','test-model')
     expect(console.error).toHaveBeenCalledWith('Error processing record: fake error')
   })
 
@@ -124,7 +124,7 @@ describe('processRecord', () => {
     (dynamoDbUtils.fetchLatestMessages as jest.Mock).mockResolvedValue([{ sender: 'user', content: 'hello' }]);
     (mockOpenaiInstance.createChatCompletion as jest.Mock).mockResolvedValue({ data: { choices: [{ message: null }] } })
 
-    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable')
+    await processRecord({ body: JSON.stringify({ conversationId: '1', to: 'to', from: 'from', body: 'body' }) }, mockOpenaiInstance, 'conversationTable','test-model')
     expect(console.error).toHaveBeenCalledWith('1 -- QueryGPT -- No response from OpenAI')
   })
 })

@@ -7,9 +7,7 @@ export const handler = async (event: any): Promise<any> => {
   if (!process.env.ERROR_QUEUE_URL) {
     throw new Error('QueryGPT -- ERROR_QUEUE_URL is missing.')
   }
-  if (!process.env.CONVERSATION_TABLE_NAME) {
-    throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME is missing')
-  }
+
   if (!process.env.MODEL) {
     throw new Error('QueryGPT -- MODEL is missing')
   }
@@ -20,7 +18,9 @@ export const handler = async (event: any): Promise<any> => {
     if (!secrets || !secrets.OPENAI_API_KEY) {
       throw new Error('QueryGPT -- Unable to retrieve OpenAI API Key from secrets')
     }
-
+    if (!process.env.CONVERSATION_TABLE_NAME) {
+      throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME is missing')
+    }
     const configuration = new Configuration({
       apiKey: secrets.OPENAI_API_KEY
     })

@@ -1,7 +1,7 @@
 import { fetchLatestMessages, storeInDynamoDB } from '../../utils/dynamoDb.utils'
 import * as AWS from 'aws-sdk'
 import { type DynamoDB } from 'aws-sdk'
-import * as data from '../../utils/prompt.json'
+import * as data from '../../utils/prompt2.0.json'
 
 jest.mock('aws-sdk', () => {
   const mockQuery = jest.fn()
