@@ -1,25 +1,3 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Construct } from 'constructs';
-// import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-// import { ManualApprovalStep } from 'aws-cdk-lib/pipelines';
-// import { envConfig } from './config'
-// import { GITHUB_TOKEN } from './text-gpt.constants';
-
-// export class CodePipelineStack extends cdk.Stack {
-//   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-//     super(scope, id, props);
-
-//     new CodePipeline(this, 'Pipeline', {
-//       pipelineName: 'CDKTestPipeline',
-//       synth: new ShellStep('Synth', {
-//         input: CodePipelineSource.gitHub(`${envConfig.github.GITHUB_OWNER}/${envConfig.github.GITHUB_REPO}`, 'main'), // replace the GitHub repository name with 'user-name/repository-name'
-
-//         commands: ['echo GOOD LORD WE MADE IT']
-//       }),
-//     })
-//   }
-// }
-
 // import { Construct } from 'constructs';
 // import * as cdk from 'aws-cdk-lib';
 // import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';

@@ -40,16 +40,17 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
           { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
         )
       }
-    }
-    // Otherwise, just add the new message body
-    messages.push(
-      {
+      messages.push(      {
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: data.content
       },
+      { role: ChatCompletionRequestMessageRoleEnum.User, content: body })
+    } else{
+
+    messages.push(
       { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
     )
-
+    }
     return messages
   } catch (error) {
     console.error('Error fetching DynamoDB entry:', error)
