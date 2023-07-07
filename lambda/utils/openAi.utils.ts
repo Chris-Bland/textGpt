@@ -22,12 +22,13 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[], model: 
     const response = await openai.createChatCompletion({
       model: model,
       messages,
-      temperature: 1,
+      temperature: 1, //set to 0 to make deterministic
       max_tokens: 256,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0
     })
+    //Checks that choices exists, and that there is a message on the first choice. If so, return that message content. Otherwise, return undefined
     return response.data.choices && (response.data.choices[0].message != null) ? response.data.choices[0].message.content : undefined
   } catch (error) {
     if (error instanceof Error) {
@@ -92,13 +93,13 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
 
     if (openAIResponse) {
       console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`)
-      const { body, imagePrompt } = delimiterCheck(openAIResponse)
+      const { response, imagePrompt } = delimiterCheck(openAIResponse)
 
       if (imagePrompt === '') {
-        await sendToSqs(conversationId, to, from, openAIResponse)
+        await sendToSqs(conversationId, to, from, response)
         console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
       } else {
-        await sendToSqs(conversationId, to, from, openAIResponse, imagePrompt)
+        await sendToSqs(conversationId, to, from, response, imagePrompt)
         console.log(`${conversationId} -- QueryGPT -- Successfully placed Image message on SQS queue.`)
       }
       await storeConversationInDynamoDB(conversationTableName, from, to, body, openAIResponse, conversationId)

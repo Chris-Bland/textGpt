@@ -6,7 +6,7 @@ export const createResponse = (statusCode: number, body: any) => {
   }
 }
 
-export const delimiterCheck = (input: string): { body: string, imagePrompt: string } => {
+export const delimiterCheck = (input: string): { response: string, imagePrompt: string } => {
   const startDelimiter = '<<<'
   const endDelimiter = '>>>'
   const startIndex = input.indexOf(startDelimiter)
@@ -14,10 +14,10 @@ export const delimiterCheck = (input: string): { body: string, imagePrompt: stri
 
   if (startIndex !== -1 && endIndex !== -1) {
     console.log('Delimited Prompt Detected in Response')
-    const body = input.slice(0, startIndex).trim()
+    const response = input.slice(0, startIndex).trim()
     const imagePrompt = input.slice(startIndex + startDelimiter.length, endIndex).trim()
-    return { body, imagePrompt }
+    return { response, imagePrompt }
   }
 
-  return { body: input.trim(), imagePrompt: '' }
+  return { response: input.trim(), imagePrompt: '' }
 }
