@@ -2,7 +2,6 @@ import { type OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './sqs.util'
 import { fetchLatestMessages, storeInDynamoDB } from './dynamoDb.utils'
 import { delimiterCheck } from './common.utils'
-import { delimiter } from 'path'
 
 interface Record {
   body: string
@@ -18,10 +17,10 @@ class ChatCompletionError extends Error {}
 class SqsError extends Error {}
 class DynamoDbError extends Error {}
 
-async function createChatCompletion (openai: OpenAIApi, messages: any[]): Promise<string | undefined> {
+async function createChatCompletion (openai: OpenAIApi, messages: any[], model: string): Promise<string | undefined> {
   try {
     const response = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+      model: model,
       messages,
       temperature: 1,
       max_tokens: 256,
@@ -82,14 +81,14 @@ async function storeConversationInDynamoDB (conversationTableName: string, from:
   }
 }
 
-export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string): Promise<void> {
+export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string, model: string): Promise<void> {
   try {
     const { conversationId, to, from, body } = JSON.parse(record.body) as Message
 
     const messages = await fetchLatestMessages(from, conversationTableName, body)
     console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`)
 
-    const openAIResponse = await createChatCompletion(openai, messages)
+    const openAIResponse = await createChatCompletion(openai, messages, model)
 
     if (openAIResponse) {
       console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`)

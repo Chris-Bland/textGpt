@@ -5,8 +5,15 @@ import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: any): Promise<any> => {
   if (!process.env.ERROR_QUEUE_URL) {
-    throw new Error('QueryGPT -- ERROR_QUEUE_URL is undefined.')
+    throw new Error('QueryGPT -- ERROR_QUEUE_URL is missing.')
   }
+  if (!process.env.CONVERSATION_TABLE_NAME) {
+    throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME is missing')
+  }
+  if (!process.env.MODEL) {
+    throw new Error('QueryGPT -- MODEL is missing')
+  }
+
   try {
     const secrets = await getSecret('ChatGPTSecrets')
 
@@ -19,12 +26,8 @@ export const handler = async (event: any): Promise<any> => {
     })
     const openai = new OpenAIApi(configuration)
 
-    if (!process.env.CONVERSATION_TABLE_NAME) {
-      throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME environment variable is missing')
-    }
-
     for (const record of event.Records) {
-      await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME)
+      await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL)
     }
   } catch (error) {
     console.error(`${event.Records[0].body.conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`)

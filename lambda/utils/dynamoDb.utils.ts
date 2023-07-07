@@ -32,7 +32,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
       content: data.content
     }]
 
-    // If there are results, build out the messages array
+    // If there are results, build out the messages array, add the prompt again, followed by the new user input
     if ((result.Items != null) && result.Items.length > 0) {
       for (const item of result.Items) {
         messages.push(
@@ -40,16 +40,17 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
           { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
         )
       }
-      messages.push(      {
+      messages.push({
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: data.content
       },
       { role: ChatCompletionRequestMessageRoleEnum.User, content: body })
-    } else{
-
-    messages.push(
-      { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
-    )
+    }
+    // Otherwise just push the new user input. No need to double up on the prompt.
+    else {
+      messages.push(
+        { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
+      )
     }
     return messages
   } catch (error) {

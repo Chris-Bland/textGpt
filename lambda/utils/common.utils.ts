@@ -13,7 +13,7 @@ export const delimiterCheck = (input: string): { body: string, imagePrompt: stri
   const endIndex = input.indexOf(endDelimiter)
 
   if (startIndex !== -1 && endIndex !== -1) {
-    console.log(`Delimited Prompt Detected in Response`)
+    console.log('Delimited Prompt Detected in Response')
     const body = input.slice(0, startIndex).trim()
     const imagePrompt = input.slice(startIndex + startDelimiter.length, endIndex).trim()
     return { body, imagePrompt }

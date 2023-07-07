@@ -19,13 +19,6 @@ export const handler = async (event: any): Promise<any> => {
     })
     const openai = new OpenAIApi(configuration)
 
-    if (!process.env.CONVERSATION_TABLE_NAME) {
-      throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME environment variable is missing')
-    }
-
-    for (const record of event.Records) {
-      await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME)
-    }
   } catch (error) {
     console.error(`${event.Records[0].body.conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`)
     const errorMessage = { conversationId: event.Records[0].body.conversationId, to: event.Records[0].body.to, from: event.Records[0].body.from, body: JSON.stringify(error) }
