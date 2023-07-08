@@ -1,7 +1,6 @@
 import { fetchLatestMessages, storeInDynamoDB } from '../../utils/dynamoDb.utils'
 import * as AWS from 'aws-sdk'
 import { type DynamoDB } from 'aws-sdk'
-import * as data from '../../utils/prompt2.0.json'
 
 jest.mock('aws-sdk', () => {
   const mockQuery = jest.fn()
@@ -25,6 +24,10 @@ const { mockQuery, mockPut } = (AWS as any)
 
 describe('DynamoDB utility functions', () => {
   let dynamoDb: DynamoDB.DocumentClient
+  const prompt = 'test-prompt'
+  const senderNumber = '+18436405233'
+  const tableName = 'exampleTable'
+  const body = 'Hello'
 
   beforeEach(() => {
     dynamoDb = new AWS.DynamoDB.DocumentClient()
@@ -41,12 +44,7 @@ describe('DynamoDB utility functions', () => {
       }
 
       mockQuery.mockImplementation(() => ({ promise: async () => await Promise.resolve(mockResult) }))
-
-      const senderNumber = '+18436405233'
-      const tableName = 'exampleTable'
-      const body = 'Hello'
-
-      const result = await fetchLatestMessages(senderNumber, tableName, body)
+      const result = await fetchLatestMessages(senderNumber, tableName, body, prompt)
 
       expect(mockQuery).toHaveBeenCalledWith({
         TableName: tableName,
@@ -60,7 +58,7 @@ describe('DynamoDB utility functions', () => {
 
       expect(result).toHaveLength(5)
       // Check to make sure the prompt has been added right when the array was created to keep responses on point
-      const expectedSystemMessage = data.content
+      const expectedSystemMessage = 'test-prompt'
       expect(result[0].content).toBe(expectedSystemMessage)
       expect(result[0].role).toBe('system')
       expect(result[1].role).toBe('user')
@@ -75,12 +73,7 @@ describe('DynamoDB utility functions', () => {
           promise: async () => await Promise.reject(new Error('Fetching failed'))
         }
       })
-
-      const senderNumber = '+18436405233'
-      const tableName = 'exampleTable'
-      const body = 'Hello'
-
-      await expect(fetchLatestMessages(senderNumber, tableName, body)).rejects.toThrow('Fetching failed')
+      await expect(fetchLatestMessages(senderNumber, tableName, body, prompt)).rejects.toThrow('Fetching failed')
     })
   })
 

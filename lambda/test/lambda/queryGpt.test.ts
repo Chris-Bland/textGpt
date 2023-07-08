@@ -28,7 +28,7 @@ describe('queryGPT Lambda Function', () => {
   })
 
   it('should process records successfully', async () => {
-    mockGetSecret.mockResolvedValue({ OPENAI_API_KEY: 'test-api-key' })
+    mockGetSecret.mockResolvedValue({ OPENAI_API_KEY: 'test-api-key', PROMPT: 'test-prompt' })
     mockProcessRecord.mockResolvedValue(undefined)
 
     const event = { Records: [{ body: { conversationId: '123', to: '1234567890', from: '0987654321', message: 'Test message' } }] }

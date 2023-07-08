@@ -82,11 +82,11 @@ async function storeConversationInDynamoDB (conversationTableName: string, from:
   }
 }
 
-export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string, model: string): Promise<void> {
+export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string, model: string, prompt: string): Promise<void> {
   try {
     const { conversationId, to, from, body } = JSON.parse(record.body) as Message
 
-    const messages = await fetchLatestMessages(from, conversationTableName, body)
+    const messages = await fetchLatestMessages(from, conversationTableName, body, prompt)
     console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`)
 
     const openAIResponse = await createChatCompletion(openai, messages, model)

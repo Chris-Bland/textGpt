@@ -15,8 +15,8 @@ export const handler = async (event: any): Promise<any> => {
   try {
     const secrets = await getSecret('ChatGPTSecrets')
 
-    if (!secrets || !secrets.OPENAI_API_KEY) {
-      throw new Error('QueryGPT -- Unable to retrieve OpenAI API Key from secrets')
+    if (!secrets || !secrets.OPENAI_API_KEY || !secrets.PROMPT) {
+      throw new Error('QueryGPT -- Unable to retrieve secrets')
     }
     if (!process.env.CONVERSATION_TABLE_NAME) {
       throw new Error('QueryGPT -- CONVERSATION_TABLE_NAME is missing')
@@ -27,7 +27,7 @@ export const handler = async (event: any): Promise<any> => {
     const openai = new OpenAIApi(configuration)
 
     for (const record of event.Records) {
-      await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL)
+      await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL, secrets.PROMPT)
     }
   } catch (error) {
     console.error(`${event.Records[0].body.conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`)
