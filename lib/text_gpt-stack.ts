@@ -87,7 +87,7 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEventSource(new lambdaEventSources.SqsEventSource(receiveSmsQueue))
     sendSms.addEventSource(new lambdaEventSources.SqsEventSource(sendSmsQueue))
     sendSms.addEventSource(new lambdaEventSources.SqsEventSource(errorSmsQueue))
-
+    imageProcessor.addEventSource(new lambdaEventSources.SqsEventSource(imageProcessorQueue))
     // API Gateway
     new apigw.LambdaRestApi(this, 'Endpoint', { handler: receiveSms })
   }
