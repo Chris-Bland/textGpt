@@ -72,6 +72,7 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
+    imageProcessor.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)
@@ -88,6 +89,7 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEventSource(new lambdaEventSources.SqsEventSource(sendSmsQueue))
     sendSms.addEventSource(new lambdaEventSources.SqsEventSource(errorSmsQueue))
     imageProcessor.addEventSource(new lambdaEventSources.SqsEventSource(imageProcessorQueue))
+
     // API Gateway
     new apigw.LambdaRestApi(this, 'Endpoint', { handler: receiveSms })
   }
