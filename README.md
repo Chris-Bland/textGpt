@@ -19,7 +19,7 @@ TextGPT bridges the gap between telephony and Conversational AI by integrating t
 ![TextGPTv1.0](https://github.com/Chris-Bland/textGpt/assets/27901095/6dc57c1a-968f-41c8-ae6b-953e7b4e6794)
 
 **Version 2.0**
-![TextGPTv2.0](https://github.com/Chris-Bland/textGpt/assets/27901095/b833ba39-0a91-409a-b607-6189e99bbc7b)
+![TextGPTv2.0](https://github.com/Chris-Bland/textGpt/assets/27901095/dd811d4a-935e-4e46-929c-155b81dfdf19)
 
 
 ## System Components
