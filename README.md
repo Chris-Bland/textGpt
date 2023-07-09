@@ -5,8 +5,9 @@ TextGPT bridges the gap between telephony and Conversational AI by integrating t
 Using prompt engineering, TextGPT gives the option for the AI personality to create a contextual response as well as occasionally create an image prompt relating to the subject matter. This image prompt is then sent to Dall-E 2 for generation. This image, along with the GPT response, is sent to the user as a MMS message.
 
 ## Features
-- Send and Receive SMS messages via Twilio API.
+- Send and Receive SMS and MMS messages via Twilio API
 - Process and respond to messages using OpenAI's API featuring a wealth of models (including GPT 3.5 turbo and GPT 4).
+- Process and respond to GPT personality generated image prompts using Dall-E 2 to generate images
 - Scalable and serverless architecture using AWS Lambda functions.
 - Reliable message processing using AWS SQS queues.
 - Secure storage of sensitive data with AWS Secrets Manager.
