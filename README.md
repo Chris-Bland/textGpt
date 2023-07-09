@@ -1,8 +1,8 @@
 # TextGPT
 
-TextGPT bridges the gap between telephony and Conversational AI by integrating the Twilio telephony system with OpenAI's ChatGPT model. It enables SMS messages to be processed and responded to by ChatGPT, providing an AI-driven conversational experience all built on a scaleable and easily deployable platform.
+TextGPT bridges the gap between telephony and Conversational AI by integrating the Twilio telephony system with OpenAI's GPT model. It enables SMS messages to be processed and responded to by GPT ChatCompletion, providing an AI-driven conversational experience all built on a scaleable and easily deployable platform.
 
-Using prompt engineering, TextGPT gives the option for the AI personality to create a contextual response as well as occasionally create an image prompt relating to the subject matter. This image prompt is then sent to Dall-E 2 for generation. This image, along with the GPT response, is sent to the user as a MMS message.
+Using prompt engineering, TextGPT now provides the option for the AI personality to create a contextual response as well as occasionally create an image prompt relating to the subject matter. This image prompt is then sent to Dall-E 2 for generation. This image, along with the GPT response, is sent to the user as a MMS message.
 
 ## Features
 - Send and Receive SMS and MMS messages via Twilio API
