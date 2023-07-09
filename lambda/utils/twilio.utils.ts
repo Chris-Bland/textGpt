@@ -18,14 +18,14 @@ export function parseTwilioEventValues (requestBody: string) {
 }
 export async function sendMessage (client: any, to: string, from: string, body: string, imageUrl?: string) {
   const messageType = imageUrl ? 'MMS' : 'SMS';
-  const mediaUrl = imageUrl ? [imageUrl] : undefined;
-
+  const mediaUrl = imageUrl ? imageUrl : undefined;
+  console.log(`Twilio ImageUrl: ${mediaUrl}`);
   try {
     const message = await client.messages.create({
       body,
       from: to,
       to: from,
-      mediaUrl
+      mediaUrl: mediaUrl
     });
     console.log(`${messageType} message sent: ${message.sid}`);
     return createResponse(200, { message: `${messageType} message sent successfully`});

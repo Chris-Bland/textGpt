@@ -56,7 +56,8 @@ export const handler = async (event: any): Promise<any> => {
       if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
         throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`);
       }
-      const imageUrl = generateImageUrl(imagePrompt, openai, imageResolution)
+      const imageUrl = await generateImageUrl(imagePrompt, openai, imageResolution)
+      console.log(`ImageProcessor -- ImageUrl: ${imageUrl}`)
       const message = { conversationId, to, from, body: response, imageUrl }
 
       await sendMessageToSqs(message, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)

@@ -31,7 +31,7 @@ export const handler = async (event: { Records: any }) => {
       // If no error, check if there is an imageUrl, this needs to be an MMS
       if (body) {
         if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
-
+        console.log('No ImageURL, sending as sms')
         return await sendMessage(client, to, from, body)
       }
     }
