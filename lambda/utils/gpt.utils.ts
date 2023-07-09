@@ -23,7 +23,7 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[], model: 
       messages,
       temperature: 1, // set to 0 to make deterministic
       max_tokens: 256,
-      top_p: 1,
+      // top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0
     })

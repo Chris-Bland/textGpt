@@ -29,6 +29,8 @@ export const envConfig = {
     }
   },
   model: 'gpt-3.5-turbo',
+  imageResolution: '512x512',
+  errorMessage: 'Unfortunately we encountered an issue. Please try again. If this issue persists, please try again later.',
   github: {
     GITHUB_OWNER: 'Chris-Bland',
     GITHUB_REPO: 'textGpt'

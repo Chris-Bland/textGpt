@@ -1,13 +1,15 @@
 import twilio from 'twilio'
 import { getSecret } from './utils/secrets.util'
 import { createResponse } from './utils/common.utils'
-import { sendMms, sendSms } from './utils/twilio.utils'
+import { sendMessage } from './utils/twilio.utils'
 
 const TWILIO_TEST_NUMBER = 'TEST123'
-const ERROR_MESSAGE_BODY = 'Unfortunately we encountered an issue. Please try again. If this issue persists, please try again later.'
 
 export const handler = async (event: { Records: any }) => {
   try {
+    if (!process.env.ERROR_MESSAGE) {
+      throw new Error('Environment variable(s) not set')
+    }
     const secrets = await getSecret('ChatGPTSecrets')
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = secrets
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
@@ -23,14 +25,14 @@ export const handler = async (event: { Records: any }) => {
       // Error message processing
       if (record.eventSourceARN === process.env.ERROR_QUEUE_ARN) {
         console.log(`${conversationId} -- ErrorSMS -- Error from: ${lambda}`)
-        return await sendSms(client, to, from, ERROR_MESSAGE_BODY)
+        return await sendMessage(client, to, from, process.env.ERROR_MESSAGE)
       }
 
       // If no error, check if there is an imageUrl, this needs to be an MMS
       if (body) {
-        if (imageUrl) return await sendMms(client, to, from, body, imageUrl)
+        if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
 
-        return await sendSms(client, to, from, body)
+        return await sendMessage(client, to, from, body)
       }
     }
   } catch (error) {

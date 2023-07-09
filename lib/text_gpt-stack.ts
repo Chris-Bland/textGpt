@@ -8,7 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE } from './text-gpt.constants'
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -72,8 +72,10 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
+    sendSms.addEnvironment(ERROR_MESSAGE, envConfig.errorMessage)
     imageProcessor.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     imageProcessor.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
+    imageProcessor.addEnvironment(IMAGE_RESOLUTION, envConfig.imageResolution)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)

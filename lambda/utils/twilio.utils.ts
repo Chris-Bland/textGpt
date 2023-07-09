@@ -16,32 +16,21 @@ export function parseTwilioEventValues (requestBody: string) {
     body
   }
 }
-export async function sendSms (client: any, to: string, from: string, body: string) {
+export async function sendMessage (client: any, to: string, from: string, body: string, imageUrl?: string) {
+  const messageType = imageUrl ? 'MMS' : 'SMS';
+  const mediaUrl = imageUrl ? [imageUrl] : undefined;
+
   try {
     const message = await client.messages.create({
       body,
       from: to,
-      to: from
-    })
-    console.log(`Sms message sent: ${message.sid}`)
-    return createResponse(200, { message: 'Message sent successfully' })
+      to: from,
+      mediaUrl
+    });
+    console.log(`${messageType} message sent: ${message.sid}`);
+    return createResponse(200, { message: `${messageType} message sent successfully`});
   } catch (error) {
-    console.error(`Error sending sms message: ${error}`)
-    return createResponse(500, { error: `Failed to send message: ${error}` })
-  }
-}
-
-export async function sendMms (client: any, to: string, from: string, body: string, imageUrl: string) {
-  try {
-    const message = await client.messages.create({
-      body: `${body}. Image Url: ${imageUrl}`,
-      from: to,
-      to: from
-    })
-    console.log(`Mms message sent: ${message.sid}`)
-    return createResponse(200, { message: 'Message sent successfully' })
-  } catch (error) {
-    console.error(`Error sending mms message: ${error}`)
-    return createResponse(500, { error: `Failed to send message: ${error}` })
+    console.error(`Error sending ${messageType} message: ${error}`);
+    return createResponse(500, { error: `Failed to send ${messageType} message: ${error}` });
   }
 }

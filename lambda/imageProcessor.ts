@@ -1,7 +1,9 @@
-import { Configuration, OpenAIApi } from 'openai'
+import { Configuration, CreateImageRequestSizeEnum, OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './utils/sqs.util'
 import { delimiterProcessing } from './utils/common.utils'
 import { getSecret } from './utils/secrets.util'
+import { generateArbitraryIntervals } from 'aws-cdk-lib/aws-autoscaling-common'
+import { generateImageUrl } from './utils/dalle.utils'
 
 interface Message {
   conversationId: string
@@ -24,8 +26,9 @@ export const handler = async (event: any): Promise<any> => {
   }
   try {
     const secrets = await getSecret('ChatGPTSecrets')
-    if (!process.env.SEND_SMS_QUEUE_URL) {
-      throw new Error('SEND_SMS_QUEUE_URL environment variable is not set')
+      
+    if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_RESOLUTION) {
+      throw new Error('Environment variable(s) not set')
     }
     if (!secrets || !secrets.OPENAI_API_KEY || !secrets.PROMPT) {
       throw new Error('QueryGPT -- Unable to retrieve secrets')
@@ -47,14 +50,13 @@ export const handler = async (event: any): Promise<any> => {
       }
       console.log(`ImagePrompt: ${imagePrompt}`)
 
-      const openAiResponse = await openai.createImage({
-        prompt: JSON.stringify(imagePrompt),
-        n: 1,
-        size: '512x512'
-      })
-      const imageUrl = openAiResponse.data.data[0].url
-      console.log(imageUrl)
+      const imageResolution = process.env.IMAGE_RESOLUTION as CreateImageRequestSizeEnum;
 
+      //The image resolution value must be: 256x256, 512x512, or 1024x1024
+      if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
+        throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`);
+      }
+      const imageUrl = generateImageUrl(imagePrompt, openai, imageResolution)
       const message = { conversationId, to, from, body: response, imageUrl }
 
       await sendMessageToSqs(message, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
