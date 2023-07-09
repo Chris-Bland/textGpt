@@ -2,9 +2,17 @@
 
 TextGPT bridges the gap between telephony and Conversational AI by integrating the Twilio telephony system with OpenAI's ChatGPT model. It enables SMS messages to be processed and responded to by ChatGPT, providing an AI-driven conversational experience all built on a scaleable and easily deployable platform.
 
-![TextGPT](https://github.com/Chris-Bland/textGpt/assets/27901095/a335b281-9aa0-431a-9606-8eb5ddc367b2)
+## Version 1.0
+![TextGPTv1.0](https://github.com/Chris-Bland/textGpt/assets/27901095/6dc57c1a-968f-41c8-ae6b-953e7b4e6794)
+
+## Version 2.0
+![TextGPTv2.0](https://github.com/Chris-Bland/textGpt/assets/27901095/b833ba39-0a91-409a-b607-6189e99bbc7b)
+
 
 ## Features
+![TextGPT (2)](https://github.com/Chris-Bland/textGpt/assets/27901095/6dc57c1a-968f-41c8-ae6b-953e7b4e6794)
+![TextGPT (3)](https://github.com/Chris-Bland/textGpt/assets/27901095/b833ba39-0a91-409a-b607-6189e99bbc7b)
+
 
 - Send and Receive SMS messages via Twilio API.
 - Process and respond to messages using OpenAI's API featuring a wealth of models (including GPT 3.5 turbo and GPT 4).
