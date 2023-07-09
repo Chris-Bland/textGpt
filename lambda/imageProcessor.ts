@@ -2,7 +2,6 @@ import { Configuration, CreateImageRequestSizeEnum, OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './utils/sqs.util'
 import { delimiterProcessing } from './utils/common.utils'
 import { getSecret } from './utils/secrets.util'
-import { generateArbitraryIntervals } from 'aws-cdk-lib/aws-autoscaling-common'
 import { generateImageUrl } from './utils/dalle.utils'
 
 interface Message {
