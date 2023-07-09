@@ -27,7 +27,7 @@ export class TextGptStack extends cdk.Stack {
     const receiveSms = this.createLambdaFunction('ReceiveSmsHandler', envConfig.receiveSms)
     const queryGpt = this.createLambdaFunction('QueryGptHandler', envConfig.queryGpt)
     const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms)
-    const imageProcessor = this.createLambdaFunction('PaymentProcessorHandler', envConfig.imageProcessor)
+    const imageProcessor = this.createLambdaFunction('ImageProcessorHandler', envConfig.imageProcessor)
 
     // Secrets
     const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets')
@@ -68,10 +68,10 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName)
     queryGpt.addEnvironment(MODEL, envConfig.model)
+    queryGpt.addEnvironment(IMAGE_PROCESSOR_QUEUE_URL, imageProcessorQueue.queueUrl)
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
-    imageProcessor.addEnvironment(IMAGE_PROCESSOR_QUEUE_URL, imageProcessorQueue.queueUrl)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)

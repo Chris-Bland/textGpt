@@ -2,8 +2,11 @@ import { Configuration, OpenAIApi } from 'openai'
 import { getSecret } from './utils/secrets.util'
 import { processRecord } from './utils/openAi.utils'
 import { sendMessageToSqs } from './utils/sqs.util'
-
+console.log(`ImageProcessor --`);
 export const handler = async (event: any): Promise<any> => {
+    if (!process.env.ERROR_QUEUE_URL) {
+        throw new Error('QueryGPT -- ERROR_QUEUE_URL is missing.')
+      }
     try {
 
     if (!process.env.SEND_SMS_QUEUE_URL) {

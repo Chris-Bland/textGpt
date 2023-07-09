@@ -42,14 +42,11 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[], model: 
 async function sendToSqs (conversationId: string, to: string, from: string, body: string, imagePrompt?: string): Promise<void> {
   try {
     const message = { conversationId, to, from, body }
-    if (!process.env.SEND_SMS_QUEUE_URL) {
-      throw new Error('SEND_SMS_QUEUE_URL environment variable is not set')
+    if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_PROCESSOR_QUEUE_URL) {
+      throw new Error('SQS Queue environment variable(s) not set')
     }
     if (imagePrompt) {
-      // TODO Add new queue for image generation
-      // await sendMessageToSqs(message, 'QueryGPT', process.env.GENERATE_IMAGE_QUEUE_URL)
-      // use working sms until then
-      await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL)
+      await sendMessageToSqs(message, 'QueryGPT', process.env.IMAGE_PROCESSOR_QUEUE_URL)
     } else {
       await sendMessageToSqs(message, 'QueryGPT', process.env.SEND_SMS_QUEUE_URL)
     }
