@@ -80,7 +80,7 @@ export class TextGptStack extends cdk.Stack {
     errorSmsQueue.grantSendMessages(queryGpt)
     errorSmsQueue.grantSendMessages(sendSms)
     errorSmsQueue.grantSendMessages(imageProcessor)
-    imageProcessorQueue.grantSendMessages(imageProcessor)
+    imageProcessorQueue.grantSendMessages(queryGpt)
     conversationTable.grantReadWriteData(queryGpt)
 
     // Event Sources

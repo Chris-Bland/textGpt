@@ -20,15 +20,15 @@ class DynamoDbError extends Error {}
 async function createChatCompletion (openai: OpenAIApi, messages: any[], model: string): Promise<string | undefined> {
   try {
     const response = await openai.createChatCompletion({
-      model: model,
+      model,
       messages,
-      temperature: 1, //set to 0 to make deterministic
+      temperature: 1, // set to 0 to make deterministic
       max_tokens: 256,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0
     })
-    //Checks that choices exists, and that there is a message on the first choice. If so, return that message content. Otherwise, return undefined
+    // Checks that choices exists, and that there is a message on the first choice. If so, return that message content. Otherwise, return undefined
     return response.data.choices && (response.data.choices[0].message != null) ? response.data.choices[0].message.content : undefined
   } catch (error) {
     if (error instanceof Error) {
