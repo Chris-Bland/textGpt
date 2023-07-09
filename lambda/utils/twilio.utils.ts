@@ -23,10 +23,25 @@ export async function sendSms (client: any, to: string, from: string, body: stri
       from: to,
       to: from
     })
-    console.log(`Message sent: ${message.sid}`)
+    console.log(`Sms message sent: ${message.sid}`)
     return createResponse(200, { message: 'Message sent successfully' })
   } catch (error) {
-    console.error(`Error sending message: ${error}`)
+    console.error(`Error sending sms message: ${error}`)
+    return createResponse(500, { error: `Failed to send message: ${error}` })
+  }
+}
+
+export async function sendMms (client: any, to: string, from: string, body: string, imageUrl: string) {
+  try {
+    const message = await client.messages.create({
+      body: `${body}. Image Url: ${imageUrl}`,
+      from: to,
+      to: from
+    })
+    console.log(`Mms message sent: ${message.sid}`)
+    return createResponse(200, { message: 'Message sent successfully' })
+  } catch (error) {
+    console.error(`Error sending mms message: ${error}`)
     return createResponse(500, { error: `Failed to send message: ${error}` })
   }
 }

@@ -1,7 +1,7 @@
 import twilio from 'twilio'
 import { getSecret } from './utils/secrets.util'
 import { createResponse } from './utils/common.utils'
-import { sendSms } from './utils/twilio.utils'
+import { sendMms, sendSms } from './utils/twilio.utils'
 
 const TWILIO_TEST_NUMBER = 'TEST123'
 const ERROR_MESSAGE_BODY = 'Unfortunately we encountered an issue. Please try again. If this issue persists, please try again later.'
@@ -13,19 +13,23 @@ export const handler = async (event: { Records: any }) => {
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
     for (const record of event.Records) {
-      const { conversationId, to, from, body, lambda } = JSON.parse(record.body)
+      const { conversationId, to, from, body, lambda, imageUrl } = JSON.parse(record.body)
 
       if (to === TWILIO_TEST_NUMBER || from === TWILIO_TEST_NUMBER) {
         console.log(`${conversationId} -- SendSMS -- Test Successful!`)
         return createResponse(200, { message: 'Test Successful!' })
       }
 
+      // Error message processing
       if (record.eventSourceARN === process.env.ERROR_QUEUE_ARN) {
         console.log(`${conversationId} -- ErrorSMS -- Error from: ${lambda}`)
         return await sendSms(client, to, from, ERROR_MESSAGE_BODY)
       }
 
+      // If no error, check if there is an imageUrl, this needs to be an MMS
       if (body) {
+        if (imageUrl) return await sendMms(client, to, from, body, imageUrl)
+
         return await sendSms(client, to, from, body)
       }
     }

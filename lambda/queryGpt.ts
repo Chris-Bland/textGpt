@@ -1,6 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai'
 import { getSecret } from './utils/secrets.util'
-import { processRecord } from './utils/openAi.utils'
+import { processRecord } from './utils/gpt.utils'
 import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: any): Promise<any> => {

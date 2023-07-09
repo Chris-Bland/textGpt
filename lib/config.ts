@@ -21,9 +21,12 @@ export const envConfig = {
     }
   },
   imageProcessor: {
-    memorySize: 256,
-    timeout: 10,
-    entry: './lambda/imageProcessor.ts'
+    memorySize: 1024,
+    timeout: 30,
+    entry: './lambda/imageProcessor.ts',
+    bundling: {
+      nodeModules: ['openai']
+    }
   },
   model: 'gpt-3.5-turbo',
   github: {

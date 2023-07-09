@@ -73,10 +73,12 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
     imageProcessor.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
+    imageProcessor.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)
     sendSmsQueue.grantSendMessages(queryGpt)
+    sendSmsQueue.grantSendMessages(imageProcessor)
     errorSmsQueue.grantSendMessages(receiveSms)
     errorSmsQueue.grantSendMessages(queryGpt)
     errorSmsQueue.grantSendMessages(sendSms)

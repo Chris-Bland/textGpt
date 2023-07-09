@@ -1,4 +1,4 @@
-import { processRecord } from '../../utils/openAi.utils'
+import { processRecord } from '../../utils/gpt.utils'
 import { OpenAIApi } from 'openai'
 import * as sqsUtils from '../../utils/sqs.util'
 import * as dynamoDbUtils from '../../utils/dynamoDb.utils'

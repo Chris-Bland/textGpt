@@ -8,9 +8,7 @@ export const sendMessageToSqs = async (message: { conversationId: string, to: st
     console.error(`${lambda} -- Error: The SMS_QUEUE_URL environment variable is not set`)
     return
   }
-
   message.lambda = lambda
-
   const params = {
     MessageBody: JSON.stringify(message),
     QueueUrl: queueUrl

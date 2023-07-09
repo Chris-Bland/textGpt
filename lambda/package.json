@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-cdk/aws-lambda-nodejs": "^1.204.0",
     "aws-sdk": "^2.1397.0",
+    "fs": "^0.0.1-security",
     "openai": "^3.3.0",
     "twilio": "^4.11.2",
     "uuid": "^9.0.0"

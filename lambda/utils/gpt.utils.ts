@@ -1,7 +1,6 @@
 import { type OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './sqs.util'
 import { fetchLatestMessages, storeInDynamoDB } from './dynamoDb.utils'
-import { delimiterCheck } from './common.utils'
 
 interface Record {
   body: string
@@ -39,7 +38,7 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[], model: 
   }
 }
 
-async function sendToSqs (conversationId: string, to: string, from: string, body: string, imagePrompt?: string): Promise<void> {
+async function sendToSqs (conversationId: string, to: string, from: string, body: string, imagePrompt?: boolean): Promise<void> {
   try {
     const message = { conversationId, to, from, body }
     if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_PROCESSOR_QUEUE_URL) {
@@ -93,15 +92,11 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
 
     if (openAIResponse) {
       console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`)
-      const { response, imagePrompt } = delimiterCheck(openAIResponse)
 
-      if (imagePrompt === '') {
-        await sendToSqs(conversationId, to, from, response)
-        console.log(`${conversationId} -- QueryGPT -- Successfully placed message on SQS queue.`)
-      } else {
-        await sendToSqs(conversationId, to, from, response, imagePrompt)
-        console.log(`${conversationId} -- QueryGPT -- Successfully placed Image message on SQS queue.`)
-      }
+      // If the message contains the delimiter, send to the Image Processor
+      await sendToSqs(conversationId, to, from, openAIResponse, openAIResponse.includes('<<<'))
+      console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`)
+
       await storeConversationInDynamoDB(conversationTableName, from, to, body, openAIResponse, conversationId)
     } else {
       console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`)
