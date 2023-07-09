@@ -20,6 +20,11 @@ export const envConfig = {
       nodeModules: ['twilio']
     }
   },
+  imageProcessor: {
+    memorySize: 256,
+    timeout: 10,
+    entry: './lambda/imageProcessor.ts'
+  },
   model: 'gpt-3.5-turbo',
   github: {
     GITHUB_OWNER: 'Chris-Bland',

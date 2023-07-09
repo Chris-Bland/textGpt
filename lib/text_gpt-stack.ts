@@ -8,7 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, GITHUB_TOKEN, GITHUB_REPO, GITHUB_OWNER } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL } from './text-gpt.constants'
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -27,10 +27,11 @@ export class TextGptStack extends cdk.Stack {
     const receiveSms = this.createLambdaFunction('ReceiveSmsHandler', envConfig.receiveSms)
     const queryGpt = this.createLambdaFunction('QueryGptHandler', envConfig.queryGpt)
     const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms)
+    const imageProcessor = this.createLambdaFunction('PaymentProcessorHandler', envConfig.imageProcessor)
 
     // Secrets
     const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets')
-    const lambdas = [sendSms, queryGpt]
+    const lambdas = [sendSms, queryGpt, imageProcessor]
     for (const lambda of lambdas) {
       lambda.addToRolePolicy(new iam.PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
@@ -46,6 +47,9 @@ export class TextGptStack extends cdk.Stack {
       visibilityTimeout: cdk.Duration.seconds(30)
     })
     const errorSmsQueue = new sqs.Queue(this, 'ErrorSmsQueue', {
+      visibilityTimeout: cdk.Duration.seconds(30)
+    })
+    const imageProcessorQueue = new sqs.Queue(this, 'ImageProcessorQueue', {
       visibilityTimeout: cdk.Duration.seconds(30)
     })
 
@@ -67,6 +71,7 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
+    imageProcessor.addEnvironment(IMAGE_PROCESSOR_QUEUE_URL, imageProcessorQueue.queueUrl)
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)
@@ -74,6 +79,8 @@ export class TextGptStack extends cdk.Stack {
     errorSmsQueue.grantSendMessages(receiveSms)
     errorSmsQueue.grantSendMessages(queryGpt)
     errorSmsQueue.grantSendMessages(sendSms)
+    errorSmsQueue.grantSendMessages(imageProcessor)
+    imageProcessorQueue.grantSendMessages(imageProcessor)
     conversationTable.grantReadWriteData(queryGpt)
 
     // Event Sources

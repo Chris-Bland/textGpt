@@ -27,6 +27,7 @@ export const handler = async (event: any): Promise<any> => {
     const openai = new OpenAIApi(configuration)
 
     for (const record of event.Records) {
+      //restructure processRecord to return and send to sqs here
       await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL, secrets.PROMPT)
     }
   } catch (error) {
