@@ -7,7 +7,7 @@ Using prompt engineering, TextGPT now provides the option for the AI personality
 ## Features
 - Send and Receive SMS and MMS messages via Twilio API
 - Process and respond to messages using OpenAI's API featuring a wealth of models (including GPT 3.5 turbo and GPT 4).
-- Process and respond to GPT personality generated image prompts using Dall-E 2 to generate images
+- Process and respond to GPT personality generated image prompts using Dall-E 2 to generate images. There is currently a 3 image cooldown before another is sent, if many are sent in a row by the AI.
 - Image storing using AWS S3.
 - Scalable and serverless architecture using AWS Lambda functions.
 - Reliable message processing using AWS SQS queues.
