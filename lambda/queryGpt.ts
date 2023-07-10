@@ -5,11 +5,13 @@ import { sendMessageToSqs } from './utils/sqs.util'
 
 export const handler = async (event: any): Promise<any> => {
   if (!process.env.ERROR_QUEUE_URL) {
-    throw new Error('QueryGPT -- ERROR_QUEUE_URL is missing.')
+    console.error('QueryGPT -- ERROR_QUEUE_URL is missing.')
+    return
   }
 
   if (!process.env.MODEL) {
-    throw new Error('QueryGPT -- MODEL is missing')
+    console.error('QueryGPT -- MODEL is missing')
+    return
   }
 
   try {

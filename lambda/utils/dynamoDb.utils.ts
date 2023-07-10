@@ -1,5 +1,6 @@
 import { type ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai'
 import { DynamoDB } from 'aws-sdk'
+import { sendMessageToSqs } from './sqs.util'
 
 const dynamodb = new DynamoDB.DocumentClient()
 
@@ -10,7 +11,28 @@ interface QueryParams {
   Limit: number
   ScanIndexForward: boolean
 }
-export async function fetchLatestMessages (senderNumber: string, tableName: string, body: string, prompt: string): Promise<ChatCompletionRequestMessage[]> {
+
+export interface DynamoDbParams {
+  TableName: string,
+  Item: {
+    senderNumber: string,
+    TwilioNumber: string,
+    input: string,
+    response: string,
+    conversationId: string,
+    timestamp: string
+  }
+}
+
+export async function fetchLatestMessages (senderNumber: string, tableName: string, body: string, prompt: string, conversationId: string, twilioNumber: string): Promise<ChatCompletionRequestMessage[]> {
+  if (!process.env.ERROR_QUEUE_URL) {
+    throw new Error('ERROR_QUEUE_URL is not defined');
+  }
+  // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
+  const messages: ChatCompletionRequestMessage[] = [{
+    role: ChatCompletionRequestMessageRoleEnum.System,
+    content: prompt
+  }]
   try {
     // Query the latest 10 messages from the senderNumber
     const params: QueryParams = {
@@ -24,6 +46,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     }
 
     const result = await dynamodb.query(params).promise()
+
 
     // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
     const messages: ChatCompletionRequestMessage[] = [{
@@ -48,22 +71,30 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     // Otherwise just push the new user input. No need to double up on the prompt.
     else {
       messages.push(
-        { role: ChatCompletionRequestMessageRoleEnum.User, content: body }
+        { role: ChatCompletionRequestMessageRoleEnum.User, content: body } 
       )
     }
     return messages
   } catch (error) {
     console.error('Error fetching DynamoDB entry:', error)
-    throw error
+    const message = {body: body, to: senderNumber, from: twilioNumber, conversationId: conversationId }
+    await sendMessageToSqs(message, 'QueryGPT', process.env.ERROR_QUEUE_URL)
+    throw error // re-throwing to allow the caller to handle
   }
+  return messages
 }
 
-export async function storeInDynamoDB (params: any, conversationId: string) {
+export async function storeInDynamoDB (params: DynamoDbParams) {
+  const conversationId = params.Item.conversationId;
+  if (!process.env.ERROR_QUEUE_URL) {
+    throw new Error('ERROR_QUEUE_URL is not defined');
+  }
   try {
     await dynamodb.put(params).promise()
     console.log(`Stored context in DynamoDB for ${conversationId}`)
   } catch (error) {
     console.error(`Failure to store dynamoDb entry for conversationId: ${conversationId}.${JSON.stringify(error)}`)
-    throw error
+    await sendMessageToSqs({body: params.Item.input, to: params.Item.senderNumber, from: params.Item.TwilioNumber, conversationId: conversationId }, 'QueryGPT', process.env.ERROR_QUEUE_URL)
+    throw error 
   }
 }

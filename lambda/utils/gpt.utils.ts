@@ -1,6 +1,6 @@
 import { type OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './sqs.util'
-import { fetchLatestMessages, storeInDynamoDB } from './dynamoDb.utils'
+import { fetchLatestMessages, storeInDynamoDB, DynamoDbParams } from './dynamoDb.utils'
 
 interface Record {
   body: string
@@ -12,6 +12,8 @@ interface Message {
   from: string
   body: string
 }
+
+
 
 async function createChatCompletion (openai: OpenAIApi, messages: any[], model: string): Promise<string | undefined> {
   const response = await openai.createChatCompletion({
@@ -46,14 +48,14 @@ async function storeConversationInDynamoDB (conversationTableName: string, from:
       conversationId,
       timestamp: new Date().toISOString()
     }
-  }
-  await storeInDynamoDB(params, conversationId);
+  } as DynamoDbParams
+  await storeInDynamoDB(params);
 }
 
 export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string, model: string, prompt: string): Promise<void> {
   const { conversationId, to, from, body } = JSON.parse(record.body) as Message;
 
-  const messages = await fetchLatestMessages(from, conversationTableName, body, prompt);
+  const messages = await fetchLatestMessages(from, conversationTableName, body, prompt, from, conversationId);
   console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`);
 
   const openAIResponse = await createChatCompletion(openai, messages, model);
