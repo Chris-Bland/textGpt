@@ -8,6 +8,7 @@ Using prompt engineering, TextGPT now provides the option for the AI personality
 - Send and Receive SMS and MMS messages via Twilio API
 - Process and respond to messages using OpenAI's API featuring a wealth of models (including GPT 3.5 turbo and GPT 4).
 - Process and respond to GPT personality generated image prompts using Dall-E 2 to generate images
+- Image storing using AWS S3.
 - Scalable and serverless architecture using AWS Lambda functions.
 - Reliable message processing using AWS SQS queues.
 - Secure storage of sensitive data with AWS Secrets Manager.
@@ -22,7 +23,7 @@ Using prompt engineering, TextGPT now provides the option for the AI personality
 ![TextGPTv1.0](https://github.com/Chris-Bland/textGpt/assets/27901095/6dc57c1a-968f-41c8-ae6b-953e7b4e6794)
 
 **Version 2.0**
-![TextGPTv2.0](https://github.com/Chris-Bland/textGpt/assets/27901095/dd811d4a-935e-4e46-929c-155b81dfdf19)
+![TextGPTv2.0](https://github.com/Chris-Bland/textGpt/assets/27901095/b7226400-e085-4080-a727-9971b10fba13)
 
 
 ## System Components
