@@ -18,7 +18,7 @@ export const handler = async (event: any): Promise<any> => {
   }
   try {
     const secrets = await getSecret('ChatGPTSecrets')
-      
+
     if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_RESOLUTION) {
       throw new Error('Environment variable(s) not set')
     }
@@ -42,22 +42,22 @@ export const handler = async (event: any): Promise<any> => {
       }
       console.log(`ImagePrompt: ${imagePrompt}`)
 
-      const imageResolution = process.env.IMAGE_RESOLUTION as CreateImageRequestSizeEnum;
+      const imageResolution = process.env.IMAGE_RESOLUTION as CreateImageRequestSizeEnum
 
-      //The image resolution value must be: 256x256, 512x512, or 1024x1024
+      // The image resolution value must be: 256x256, 512x512, or 1024x1024
       if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
-        throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`);
+        throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`)
       }
 
       const imageUrl = await generateImageUrl(imagePrompt, openai, imageResolution)
       console.log(`ImageProcessor -- ImageUrl: ${imageUrl}`)
       const message = { conversationId, to, from, body: response, imageUrl }
 
-      //Send the message to the SQS queue to be sent as MMS
+      // Send the message to the SQS queue to be sent as MMS
       await sendMessageToSqs(message, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
 
       // Store the image in S3
-      await storeImageInS3(imageUrl, conversationId);
+      await storeImageInS3(imageUrl, conversationId)
     }
   } catch (error) {
     console.log(`ImageProcessor error: ${error}`)

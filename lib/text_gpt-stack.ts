@@ -7,11 +7,10 @@ import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager'
 import * as iam from 'aws-cdk-lib/aws-iam'
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3 from 'aws-cdk-lib/aws-s3'
 
 import { envConfig } from './config'
 import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE, BUCKET_NAME } from './text-gpt.constants'
-
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -34,13 +33,13 @@ export class TextGptStack extends cdk.Stack {
 
     // S3
     const bucket = new s3.Bucket(this, envConfig.bucketName, {
-      versioned: false,
-    });
-    bucket.grantWrite(imageProcessor);
+      versioned: false
+    })
+    bucket.grantWrite(imageProcessor)
     imageProcessor.addToRolePolicy(new iam.PolicyStatement({
       actions: ['s3:*'],
-      resources: [bucket.bucketArn + '/*'],
-    }));
+      resources: [bucket.bucketArn + '/*']
+    }))
 
     // Secrets
     const secret = secretsmanager.Secret.fromSecretNameV2(this, 'ImportedSecret', 'ChatGPTSecrets')

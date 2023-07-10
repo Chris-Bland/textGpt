@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage } from "openai"
+import { type ChatCompletionRequestMessage } from 'openai'
 
 export const createResponse = (statusCode: number, body: any) => {
   return {
@@ -25,18 +25,18 @@ export const delimiterProcessor = (input: string): { response: string, imageProm
 }
 
 export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[]) => {
-  let imageOnCooldown = false;
+  let imageOnCooldown = false
 
-  const assistantMessages = messages.filter(message => message.role === "assistant");
+  const assistantMessages = messages.filter(message => message.role === 'assistant')
 
   // Check the last three assistant messages for the delimiter
   for (let i = assistantMessages.length - 1; i >= Math.max(assistantMessages.length - 3, 0); i--) {
-      const currentMessage = assistantMessages[i];
-      if (currentMessage && currentMessage.content && currentMessage.content.includes('<<<')) {
-          imageOnCooldown = true;
-          break;
-      }
+    const currentMessage = assistantMessages[i]
+    if (currentMessage && currentMessage.content && currentMessage.content.includes('<<<')) {
+      imageOnCooldown = true
+      break
+    }
   }
   console.log(`Image Cooldown Check -- ${imageOnCooldown}`)
-  return imageOnCooldown;
+  return imageOnCooldown
 }

@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from 'openai'
 import { getSecret } from './utils/secrets.util'
 import { processRecord } from './utils/gpt.utils'
 import { sendMessageToSqs } from './utils/sqs.util'
-import { DynamoDbParams, storeInDynamoDB } from './utils/dynamoDb.utils'
+import { type DynamoDbParams, storeInDynamoDB } from './utils/dynamoDb.utils'
 
 export const handler = async (event: any): Promise<any> => {
   if (!process.env.ERROR_QUEUE_URL) {
@@ -30,17 +30,17 @@ export const handler = async (event: any): Promise<any> => {
     const openai = new OpenAIApi(configuration)
 
     for (const record of event.Records) {
-      const { conversationId, to, from, sqsMessage, imagePrompt, body } = 
-        await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL, secrets.PROMPT);
+      const { conversationId, to, from, sqsMessage, imagePrompt, body } =
+        await processRecord(record, openai, process.env.CONVERSATION_TABLE_NAME, process.env.MODEL, secrets.PROMPT)
 
-        const message = { conversationId, to, from, body:sqsMessage };
-        const queueUrl = imagePrompt ? process.env.IMAGE_PROCESSOR_QUEUE_URL : process.env.SEND_SMS_QUEUE_URL;
-        
-        if (!queueUrl) {
-          throw new Error('SQS Queue environment variable(s) not set');
-        }
-        await sendMessageToSqs(message, 'QueryGPT', queueUrl);
-      console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`);
+      const message = { conversationId, to, from, body: sqsMessage }
+      const queueUrl = imagePrompt ? process.env.IMAGE_PROCESSOR_QUEUE_URL : process.env.SEND_SMS_QUEUE_URL
+
+      if (!queueUrl) {
+        throw new Error('SQS Queue environment variable(s) not set')
+      }
+      await sendMessageToSqs(message, 'QueryGPT', queueUrl)
+      console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`)
 
       const params = {
         TableName: process.env.CONVERSATION_TABLE_NAME,
@@ -53,7 +53,7 @@ export const handler = async (event: any): Promise<any> => {
           timestamp: new Date().toISOString()
         }
       } as DynamoDbParams
-      await storeInDynamoDB(params);
+      await storeInDynamoDB(params)
     }
   } catch (error) {
     console.error(`${event.Records[0].body.conversationId} -- QueryGPT -- Error: ${JSON.stringify(error)}`)
