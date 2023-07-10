@@ -42,7 +42,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
         ':senderNumber': senderNumber
       },
       Limit: 10,
-      ScanIndexForward: true
+      ScanIndexForward: false
     }
 
     const result = await dynamodb.query(params).promise()
@@ -54,14 +54,21 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
       content: prompt
     }]
 
-    // If there are results, build out the messages array, add the prompt again, followed by the new user input
-    if ((result.Items != null) && result.Items.length > 0) {
-      for (const item of result.Items) {
-        messages.push(
-          { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
-          { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
-        )
-      }
+// If there are results, build out the messages array, add the prompt again, followed by the new user input
+if ((result.Items != null) && result.Items.length > 0) {
+  const conversationPairs: ChatCompletionRequestMessage[][] = [];
+
+  for (const item of result.Items) {
+    conversationPairs.push([
+      { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
+      { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
+    ]);
+  }
+
+  const reversedPairs = conversationPairs.reverse();
+  for (const pair of reversedPairs) {
+    messages.push(pair[0], pair[1]);
+  }
       messages.push({
         role: ChatCompletionRequestMessageRoleEnum.System,
         content: prompt
@@ -81,7 +88,6 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     await sendMessageToSqs(message, 'QueryGPT', process.env.ERROR_QUEUE_URL)
     throw error 
   }
-  return messages
 }
 
 export async function storeInDynamoDB (params: DynamoDbParams) {

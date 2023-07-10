@@ -1,6 +1,5 @@
 import { type OpenAIApi } from 'openai'
-import { sendMessageToSqs } from './sqs.util'
-import { fetchLatestMessages, storeInDynamoDB, DynamoDbParams } from './dynamoDb.utils'
+import { fetchLatestMessages} from './dynamoDb.utils'
 import { delimiterProcessor, imageCooldownCheck } from './common.utils'
 
 interface Record {
@@ -14,8 +13,6 @@ interface Message {
   body: string
 }
 
-
-
 async function createChatCompletion (openai: OpenAIApi, messages: any[], model: string): Promise<string | undefined> {
   const response = await openai.createChatCompletion({
     model,
@@ -28,32 +25,13 @@ async function createChatCompletion (openai: OpenAIApi, messages: any[], model: 
   return response.data.choices && response.data.choices[0]?.message?.content;
 }
 
-async function sendToSqs (conversationId: string, to: string, from: string, body: string, imagePrompt?: boolean): Promise<void> {
-  const message = { conversationId, to, from, body };
-  const queueUrl = imagePrompt ? process.env.IMAGE_PROCESSOR_QUEUE_URL : process.env.SEND_SMS_QUEUE_URL;
-  
-  if (!queueUrl) {
-    throw new Error('SQS Queue environment variable(s) not set');
-  }
-  await sendMessageToSqs(message, 'QueryGPT', queueUrl);
-}
-
-async function storeConversationInDynamoDB (conversationTableName: string, from: string, to: string, body: string, openAIResponse: string, conversationId: string): Promise<void> {
-  const params = {
-    TableName: conversationTableName,
-    Item: {
-      senderNumber: from,
-      TwilioNumber: to,
-      input: body,
-      response: openAIResponse,
-      conversationId,
-      timestamp: new Date().toISOString()
-    }
-  } as DynamoDbParams
-  await storeInDynamoDB(params);
-}
-
-export async function processRecord (record: Record, openai: OpenAIApi, conversationTableName: string, model: string, prompt: string): Promise<void> {
+export async function processRecord (
+  record: Record, 
+  openai: OpenAIApi, 
+  conversationTableName: string, 
+  model: string, 
+  prompt: string
+): Promise<{ conversationId: string, to: string, from: string, sqsMessage: string, imagePrompt: boolean, body: string }> {
   const { conversationId, to, from, body } = JSON.parse(record.body) as Message;
 
   const messages = await fetchLatestMessages(from, conversationTableName, body, prompt, from, conversationId);
@@ -62,11 +40,11 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
 
   const openAIResponse = await createChatCompletion(openai, messages, model);
   if (!openAIResponse) {
-    return console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
+    throw new Error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
   }
   console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`);
 
-  //Check if any of the last three assisant messages have a delimtier. If so, the image generation will be on cooldown. After that, we can send another.
+  // Check if any of the last three assistant messages have a delimiter. If so, the image generation will be on cooldown.
   const imageOnCooldown = imageCooldownCheck(messages);
   let imagePrompt = openAIResponse.includes('<<<');
   let sqsMessage = openAIResponse;
@@ -76,9 +54,6 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
     sqsMessage = response;
     console.log(`Prompt detected, but image generation on cooldown.`);
   }
-  await sendToSqs(conversationId, to, from, sqsMessage, imagePrompt);
-  console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`);
 
-  //After sending the message to SQS to continue to the user, store the conversation in DynamoDb
-  await storeConversationInDynamoDB(conversationTableName, from, to, body, sqsMessage, conversationId);
+  return { conversationId, to, from, sqsMessage, imagePrompt, body };
 }
