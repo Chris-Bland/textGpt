@@ -1,6 +1,7 @@
 import { type OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './sqs.util'
 import { fetchLatestMessages, storeInDynamoDB, DynamoDbParams } from './dynamoDb.utils'
+import { imageCooldownCheck } from './common.utils'
 
 interface Record {
   body: string
@@ -57,17 +58,22 @@ export async function processRecord (record: Record, openai: OpenAIApi, conversa
 
   const messages = await fetchLatestMessages(from, conversationTableName, body, prompt, from, conversationId);
   console.log(`${conversationId} -- QueryGPT -- fetched dynamoDB history.`);
+  console.log(`MESSAGES: ${JSON.stringify(messages)}`);
 
   const openAIResponse = await createChatCompletion(openai, messages, model);
   if (!openAIResponse) {
     return console.error(`${conversationId} -- QueryGPT -- No response from OpenAI`);
   }
-
   console.log(`${conversationId} -- QueryGPT -- OpenAI Success.`);
-  
-  const imagePrompt = openAIResponse.includes('<<<');
+
+  //Check if any of the last three assisant messages have a delimtier. If so, the image generation will be on cooldown. After that, we can send another.
+  const imageOnCooldown = imageCooldownCheck(messages);
+  let imagePrompt = openAIResponse.includes('<<<');
+
+  if (imagePrompt && imageOnCooldown) imagePrompt = false;
   await sendToSqs(conversationId, to, from, openAIResponse, imagePrompt);
   console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`);
 
+  //After sending the message to SQS to continue to the user, store the conversation in DynamoDb
   await storeConversationInDynamoDB(conversationTableName, from, to, body, openAIResponse, conversationId);
 }

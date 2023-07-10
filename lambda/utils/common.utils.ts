@@ -1,3 +1,5 @@
+import { ChatCompletionRequestMessage } from "openai"
+
 export const createResponse = (statusCode: number, body: any) => {
   return {
     statusCode,
@@ -20,4 +22,20 @@ export const delimiterProcessor = (input: string): { response: string, imageProm
   }
 
   return { response: input.trim(), imagePrompt: '' }
+}
+
+export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[]) => {
+  let imageOnCooldown = false;
+
+  const assistantMessages = messages.filter(message => message.role === "assistant");
+
+  // Check the last three assistant messages for the delimiter
+  for (let i = assistantMessages.length - 1; i >= Math.max(assistantMessages.length - 3, 0); i--) {
+      const currentMessage = assistantMessages[i];
+      if (currentMessage && currentMessage.content && currentMessage.content.includes('<<<')) {
+          imageOnCooldown = true;
+          break;
+      }
+  }
+  return imageOnCooldown;
 }
