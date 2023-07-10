@@ -37,5 +37,6 @@ export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[]) => 
           break;
       }
   }
+  console.log(`Image Cooldown Check -- ${imageOnCooldown}`)
   return imageOnCooldown;
 }

@@ -42,7 +42,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
         ':senderNumber': senderNumber
       },
       Limit: 10,
-      ScanIndexForward: false
+      ScanIndexForward: true
     }
 
     const result = await dynamodb.query(params).promise()
