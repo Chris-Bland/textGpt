@@ -79,7 +79,7 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
     console.error('Error fetching DynamoDB entry:', error)
     const message = {body: body, to: senderNumber, from: twilioNumber, conversationId: conversationId }
     await sendMessageToSqs(message, 'QueryGPT', process.env.ERROR_QUEUE_URL)
-    throw error // re-throwing to allow the caller to handle
+    throw error 
   }
   return messages
 }

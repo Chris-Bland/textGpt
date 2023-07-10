@@ -1,8 +1,9 @@
 import { Configuration, CreateImageRequestSizeEnum, OpenAIApi } from 'openai'
 import { sendMessageToSqs } from './utils/sqs.util'
-import { delimiterProcessing } from './utils/common.utils'
+import { delimiterProcessor } from './utils/common.utils'
 import { getSecret } from './utils/secrets.util'
 import { generateImageUrl } from './utils/dalle.utils'
+import { storeImageInS3 } from './utils/s3.utils'
 
 interface Message {
   conversationId: string
@@ -12,14 +13,6 @@ interface Message {
 }
 
 export const handler = async (event: any): Promise<any> => {
-  // Receive a prompt from the delimited portion of the openAI response.
-  // pre-process with some prompt engineering for Dall-e
-  // send a request to Dall-e to generate image based on prompt
-  // If image
-  // ---Store in S3
-  // --Send to queue for MMS sending in send lambda
-  // If error
-  // -- Send an error response, but still make sure to send the original response without the image.
   if (!process.env.ERROR_QUEUE_URL) {
     throw new Error('QueryGPT -- ERROR_QUEUE_URL is missing.')
   }
@@ -41,7 +34,7 @@ export const handler = async (event: any): Promise<any> => {
       console.log(`Event Record: ${JSON.stringify(record.body)}`)
 
       const { conversationId, to, from, body } = JSON.parse(record.body) as Message
-      const { response, imagePrompt } = delimiterProcessing(body)
+      const { response, imagePrompt } = delimiterProcessor(body)
 
       if (imagePrompt.length <= 0) {
         await sendMessageToSqs({ conversationId, to, from, body: response }, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
@@ -55,11 +48,16 @@ export const handler = async (event: any): Promise<any> => {
       if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
         throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`);
       }
+
       const imageUrl = await generateImageUrl(imagePrompt, openai, imageResolution)
       console.log(`ImageProcessor -- ImageUrl: ${imageUrl}`)
       const message = { conversationId, to, from, body: response, imageUrl }
 
+      //Send the message to the SQS queue to be sent as MMS
       await sendMessageToSqs(message, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
+
+      // Store the image in S3
+      await storeImageInS3(imageUrl, conversationId);
     }
   } catch (error) {
     console.log(`ImageProcessor error: ${error}`)

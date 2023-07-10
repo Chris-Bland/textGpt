@@ -6,7 +6,7 @@ export const createResponse = (statusCode: number, body: any) => {
   }
 }
 
-export const delimiterProcessing = (input: string): { response: string, imagePrompt: string } => {
+export const delimiterProcessor = (input: string): { response: string, imagePrompt: string } => {
   const startDelimiter = '<<<'
   const endDelimiter = '>>>'
   const startIndex = input.indexOf(startDelimiter)
