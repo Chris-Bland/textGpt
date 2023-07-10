@@ -10,7 +10,7 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as s3 from 'aws-cdk-lib/aws-s3';
 
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE, BUCKET_NAME } from './text-gpt.constants'
 
 
 interface CustomNodejsFunctionOptions {
@@ -88,6 +88,7 @@ export class TextGptStack extends cdk.Stack {
     sendSms.addEnvironment(ERROR_MESSAGE, envConfig.errorMessage)
     imageProcessor.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     imageProcessor.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
+    imageProcessor.addEnvironment(BUCKET_NAME, bucket.bucketName)
     imageProcessor.addEnvironment(IMAGE_RESOLUTION, envConfig.imageResolution)
 
     // Permissions
