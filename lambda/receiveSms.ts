@@ -14,16 +14,18 @@ export const handler = async (event: { body: any }) => {
     await sendMessageToSqs(message, 'ReceiveSMS', process.env.SMS_QUEUE_URL)
     return createResponse(200, { message: `Success! ConversationID: ${message.conversationId}.` })
   } catch (error: unknown) {
-    console.log(`ReceiveSms -- Error: ${error}`)
     if (error instanceof Error) {
       // Check if the error is due to a missing environment variable
       if (error.message === 'SMS_QUEUE_URL environment variable is not set') {
         return createResponse(500, { error: `Server configuration error: ${error.message}` })
-      } else if (error.message === 'ReceiveGPT -- Required values are missing in the request body.') {
+      } else if (error.message === 'ReceiveSms -- Required values are missing in the request body.') {
         return createResponse(400, { error: `Invalid Request Content: ${error.message}` })
+      } else {
+        return createResponse(500, { error: `Unexpected error: ${error.message}` })
       }
     }
     // Default case for other errors
     return createResponse(500, { error: `Failed to send message: ${error}` })
   }
 }
+  

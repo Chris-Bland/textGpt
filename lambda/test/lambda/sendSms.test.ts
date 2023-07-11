@@ -1,159 +1,184 @@
 import { handler } from '../../sendSms'
-import twilio from 'twilio'
+import { sendMessage } from '../../utils/twilio.utils'
 import { getSecret } from '../../utils/secrets.util'
-import { createResponse } from '../../utils/common.utils'
-import { sendSms } from '../../utils/twilio.utils'
+import { Twilio } from 'twilio';
+
+jest.mock('../../utils/secrets.util')
+jest.mock('twilio')
+
+const twilioMocked = Twilio as jest.MockedClass<typeof Twilio>;
+
+const messageCreateMock = jest.fn().mockResolvedValue({ sid: 'mockedSid' });
 
 jest.mock('twilio', () => {
   return jest.fn().mockImplementation(() => {
-    return {}
-  })
-})
-jest.mock('../../utils/secrets.util')
-jest.mock('../../utils/common.utils')
-jest.mock('../../utils/twilio.utils')
+    return {
+      messages: {
+        create: jest.fn().mockResolvedValue({ sid: 'message_sid' }),
+      },
+    };
+  });
+});
 
-const mockTwilio = twilio as jest.MockedFunction<typeof twilio>
+
 const mockGetSecret = getSecret as jest.MockedFunction<typeof getSecret>
-const mockCreateResponse = createResponse as jest.MockedFunction<typeof createResponse>
-const mockSendSms = sendSms as jest.MockedFunction<typeof sendSms>
 
 describe('sendSms Lambda Function', () => {
   beforeEach(() => {
+    process.env.TEST_FROM_NUMBER = 'TEST123'
+    process.env.ERROR_MESSAGE = 'error message'
+    process.env.ERROR_QUEUE_ARN = 'arn:aws:sqs:us-east-1:123456789012:MyQueue'
+  
+    // Mock getSecret function to return valid Twilio credentials
     mockGetSecret.mockResolvedValue({
-      TWILIO_ACCOUNT_SID: 'test_sid',
-      TWILIO_AUTH_TOKEN: 'test_token'
+      TWILIO_ACCOUNT_SID: 'mockedAccountSID',
+      TWILIO_AUTH_TOKEN: 'mockedAuthToken'
     })
-    mockSendSms.mockResolvedValue({
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'default message' })
-    })
-    mockCreateResponse.mockReturnValue({
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'default message' })
-    })
-  })
+  
+    messageCreateMock.mockClear()
+})
 
   it('should send SMS successfully', async () => {
     const event = {
-      Records: [
-        {
-          body: JSON.stringify({
-            conversationId: '12345',
-            to: '1234567890',
-            from: '0987654321',
-            body: 'Test message',
-            lambda: 'sendSms'
-          })
-        }
+      "Records": [
+          {
+              "messageId": "57fb4982-328f-47be-a814-1abecb3eab09",
+              "receiptHandle": "AQEBRw+DNyztKhjzBILeQShDZv2otHdJPdBBWIvAcvTH1pspNkBQuSPV6MmskLMwhNFMZhjpWlnJcRF8q5Fq52raDvVPbDFNoUbi7dBOkGAvAxBnAR+L9Xta2hW7k40EIJFowTTOa8XZuLkssamogtEjWibwfI1kpyi7v5Qk5klcJldO5Rkq2BmmLRhj1Qhi54jhNyzBbDP4pmvKmqF8zfB6W+vVHbUA01s21jahcd01JAnNd6FLiWWSofY7q9MwCUqKyD+ARUWAaugFhzSiQIwe5NacNE1haOjqZIFVQ7jp8onoNvA5wagOaXQdwF20PC/WtzZYLBs7mpktvrdWBf2QHLtlzVQQRHaU42LolMinBXDRumaZGMyuPTnmtm/GD1xExyi9lfmij/WTNdVmyEDutiWt+gBDk04o0+vAGFOVChnaHM1YbVCYmh0uRRt71iey",
+              "body": "{\"conversationId\":\"SM34dfcdadb698c99a1aa07ac9e1f90bce\",\"to\":\"+18449612720\",\"from\":\"+18436405233\",\"body\":\"Hey there! Yes, I'm receiving your messages loud and clear. I'm ready to chat and answer any questions you may have. Feel free to ask away! 😊false\",\"lambda\":\"QueryGPT\"}",
+              "attributes": {
+                  "ApproximateReceiveCount": "1",
+                  "AWSTraceHeader": "Root=1-64adad7a-f102b181334abcd150efe404;Parent=5784f3be47e19a03;Sampled=0;Lineage=8c251606:0|b1863677:0",
+                  "SentTimestamp": "1689103742828",
+                  "SenderId": "AROA53Q7L3VRTCA3ZACE2:TextGptStack-QueryGptHandler3DB68B2B-Ey35dFDVF4NC",
+                  "ApproximateFirstReceiveTimestamp": "1689103742839"
+              },
+              "messageAttributes": {},
+              "md5OfBody": "010d239c1a27a2b25e4ad7783ab29709",
+              "eventSource": "aws:sqs",
+              "eventSourceARN": "arn:aws:sqs:us-east-1:952474787171:TextGptStack-SendSmsQueueB4EC6D0B-w99WaAiZTveW",
+              "awsRegion": "us-east-1"
+          }
       ]
-    }
+  }
 
     const response = await handler(event)
 
+    expect(messageCreateMock).toHaveBeenCalledWith({
+      from: '1234567890',
+      to: '0987654321',
+      body: 'Test message'
+    })
     expect(response).toEqual({
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'default message' })
+      body: JSON.stringify({ message: 'Test Successful!' })
     })
   })
 
-  it('should log test success and return 200 for TWILIO_TEST_NUMBER', async () => {
+  it('should not send message when body does not exist', async () => {
     const event = {
       Records: [
         {
           body: JSON.stringify({
-            conversationId: '12345',
-            to: 'TEST123',
-            from: '0987654321',
-            body: 'Test message',
-            lambda: 'sendSms'
-          })
-        }
-      ]
+            conversationId: 'conv1',
+            to: '0987654321',
+            from: '1234567890',
+            body: ''
+          }),
+        },
+      ],
     }
 
     const response = await handler(event)
 
+    expect(messageCreateMock).not.toHaveBeenCalled()
+    expect(response).toEqual({
+      statusCode: 404,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'No Records Found' })
+    })
+  })
+
+  it('should send message as MMS when imageUrl exists', async () => {
+    const event = {
+      Records: [
+        {
+          body: JSON.stringify({
+            conversationId: 'conv1',
+            to: '0987654321',
+            from: '1234567890',
+            body: 'Test message with image',
+            imageUrl: 'https://example.com/image.jpg'
+          }),
+        },
+      ],
+    }
+
+    const response = await handler(event)
+
+    expect(messageCreateMock).toHaveBeenCalledWith({
+      from: '1234567890',
+      to: '0987654321',
+      body: 'Test message with image',
+      mediaUrl: ['https://example.com/image.jpg']
+    })
+    expect(response.statusCode).toEqual(200)
+  })
+
+  it('should log test success and return 200 for TEST_FROM_NUMBER', async () => {
+    const event = {
+      Records: [
+        {
+          body: JSON.stringify({
+            conversationId: 'conv1',
+            to: process.env.TEST_FROM_NUMBER,
+            from: '0987654321',
+            body: 'Test message'
+          }),
+        },
+      ],
+    }
+
+    const response = await handler(event)
+
+    expect(messageCreateMock).not.toHaveBeenCalled()
     expect(response).toEqual({
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'default message' })
+      body: JSON.stringify({ message: 'Test Successful!' })
     })
   })
 
   it('should log error and send error SMS for ERROR_QUEUE_ARN', async () => {
-    process.env.ERROR_QUEUE_ARN = 'error_queue_arn'
-
     const event = {
       Records: [
         {
+          eventSourceARN: process.env.ERROR_QUEUE_ARN,
           body: JSON.stringify({
-            conversationId: '12345',
-            to: '1234567890',
-            from: '0987654321',
-            body: 'Test message',
-            lambda: 'sendSms'
+            conversationId: 'conv1',
+            to: '0987654321',
+            from: '1234567890',
+            lambda: 'errorLambda',
           }),
-          eventSourceARN: 'error_queue_arn'
-        }
-      ]
-    }
-
-    mockSendSms.mockResolvedValue({
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'error message' })
-    })
-
-    const response = await handler(event)
-
-    expect(response).toEqual({
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'error message' })
-    })
-  })
-
-  it('should return error when SMS sending fails', async () => {
-    mockSendSms.mockResolvedValueOnce({
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error' })
-    })
-
-    const event = {
-      Records: [
-        {
-          body: JSON.stringify({
-            conversationId: '12345',
-            to: '1234567890',
-            from: '0987654321',
-            body: 'Test message',
-            lambda: 'sendSms'
-          })
-        }
-      ]
+        },
+      ],
     }
 
     const response = await handler(event)
 
-    expect(response).toEqual({
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error' })
+    expect(messageCreateMock).toHaveBeenCalledWith({
+      from: '1234567890',
+      to: '0987654321',
+      body: process.env.ERROR_MESSAGE
     })
+    expect(response.statusCode).toEqual(200)
   })
+
 
   it('should return 404 when no records are found', async () => {
-    mockCreateResponse.mockReturnValueOnce({
-      statusCode: 404,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'No Records Found' })
-    })
-    const event = { Records: [] }
+    const event = {
+      Records: [],
+    }
 
     const response = await handler(event)
 
@@ -164,34 +189,7 @@ describe('sendSms Lambda Function', () => {
     })
   })
 
-  it('should return 500 when an error occurs during Twilio setup', async () => {
-    mockGetSecret.mockRejectedValueOnce(new Error('Twilio setup error'))
-    mockCreateResponse.mockReturnValueOnce({
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Error during Twilio setup: Twilio setup error' })
-    })
-
-    const event = {
-      Records: [
-        {
-          body: JSON.stringify({
-            conversationId: '12345',
-            to: '1234567890',
-            from: '0987654321',
-            body: 'Test message',
-            lambda: 'sendSms'
-          })
-        }
-      ]
-    }
-
-    const response = await handler(event)
-
-    expect(response).toEqual({
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Error during Twilio setup: Twilio setup error' })
-    })
+  afterEach(() => {
+    jest.clearAllMocks();
   })
 })

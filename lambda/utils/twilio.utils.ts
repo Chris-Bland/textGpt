@@ -7,7 +7,7 @@ export function parseTwilioEventValues (requestBody: string) {
   const from = parsedBody.get('From')
   const conversationId = parsedBody.get('MessageSid')
   if (!body || !to || !from || !conversationId) {
-    throw new Error('ReceiveGPT -- Required values are missing in the request body.')
+    throw new Error('ReceiveSms -- Required values are missing in the request body.')
   }
   return {
     conversationId,
@@ -19,7 +19,7 @@ export function parseTwilioEventValues (requestBody: string) {
 export async function sendMessage (client: any, to: string, from: string, body: string, imageUrl?: string) {
   const messageType = imageUrl ? 'MMS' : 'SMS'
   const mediaUrl = imageUrl || undefined
-  console.log(`Twilio ImageUrl: ${mediaUrl}`)
+  console.log(`sendMessage called with client: ${JSON.stringify(client)}`);
   try {
     const message = await client.messages.create({
       body,

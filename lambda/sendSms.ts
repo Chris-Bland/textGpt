@@ -4,6 +4,7 @@ import { createResponse } from './utils/common.utils'
 import { sendMessage } from './utils/twilio.utils'
 
 export const handler = async (event: { Records: any }) => {
+  console.log(JSON.stringify(event));
   try {
     if (!process.env.ERROR_MESSAGE || !process.env.TEST_FROM_NUMBER) {
       throw new Error('Environment variable(s) not set')
@@ -19,7 +20,6 @@ export const handler = async (event: { Records: any }) => {
         console.log(`${conversationId} -- SendSMS -- Test Successful!`)
         return createResponse(200, { message: 'Test Successful!' })
       }
-
       // Error message processing
       if (record.eventSourceARN === process.env.ERROR_QUEUE_ARN) {
         console.log(`${conversationId} -- ErrorSMS -- Error from: ${lambda}`)

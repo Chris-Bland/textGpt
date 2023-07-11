@@ -1,7 +1,6 @@
 import { handler } from '../../queryGpt'
 import { Configuration, OpenAIApi } from 'openai'
 import { getSecret } from '../../utils/secrets.util'
-import { processRecord } from '../../utils/gpt.utils'
 import { sendMessageToSqs } from '../../utils/sqs.util'
 
 jest.mock('../../utils/secrets.util')
@@ -10,7 +9,7 @@ jest.mock('../../utils/sqs.util')
 jest.mock('openai')
 
 const mockGetSecret = getSecret as jest.MockedFunction<typeof getSecret>
-const mockProcessRecord = processRecord as jest.MockedFunction<typeof processRecord>
+// const mockProcessRecord = processRecord as jest.MockedFunction<typeof processRecord>
 const mockSendMessageToSqs = sendMessageToSqs as jest.MockedFunction<typeof sendMessageToSqs>
 
 describe('queryGPT Lambda Function', () => {

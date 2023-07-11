@@ -26,7 +26,7 @@ export const delimiterProcessor = (input: string, startDelimiter: string, endDel
 export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[], startDelimiter: string, imageCooldownString: string) => {
   // To prevent the AI from sending an image every text, the image send has a cooldown.
   let imageOnCooldown = false
-
+  console.log(`messages: ${JSON.stringify(messages)}`);
   // Filter out only the assistant message roles. These are the responses from GPT, rather than user or system.
   const assistantMessages = messages.filter(message => message.role === 'assistant')
   const imageCooldown = parseInt(imageCooldownString)

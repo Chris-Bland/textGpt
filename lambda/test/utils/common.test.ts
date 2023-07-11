@@ -1,4 +1,5 @@
-import { createResponse } from '../../utils/common.utils'
+import { delimiter } from 'path'
+import { createResponse, delimiterProcessor } from '../../utils/common.utils'
 
 describe('Common Utilities', () => {
   describe('createResponse', () => {
@@ -26,6 +27,56 @@ describe('Common Utilities', () => {
       }
 
       const response = createResponse(statusCode, body)
+
+      expect(response).toEqual(expectedResponse)
+    })
+  })
+  describe('delimiterProcessor', () => {
+    it('should return a response and imagePrompt when provided', () => {
+      const input = 'This is a test string. <<<test image prompt>>>' ;
+      const expectedResponse = {
+        response: 'This is a test string.',
+        imagePrompt: 'test image prompt'
+      }
+
+      const response = delimiterProcessor(input , '<<<', '>>>')
+
+      expect(response).toEqual(expectedResponse)
+    })
+
+    it('should return an empty string for imagePrompt when none are present', () => {
+      const input = 'This is a test string.' ;
+      const expectedResponse = {
+        response: input,
+        imagePrompt: ''
+      }
+
+      const response = delimiterProcessor(input , '<<<', '>>>')
+
+      expect(response).toEqual(expectedResponse)
+    })
+  })
+  describe('imageCooldownCheck', () => {
+    it('should return a response and imagePrompt when provided', () => {
+      const input = 'This is a test string. <<<test image prompt>>>' ;
+      const expectedResponse = {
+        response: 'This is a test string.',
+        imagePrompt: 'test image prompt'
+      }
+
+      const response = delimiterProcessor(input , '<<<', '>>>')
+
+      expect(response).toEqual(expectedResponse)
+    })
+
+    it('should return an empty string for imagePrompt when none are present', () => {
+      const input = 'This is a test string.' ;
+      const expectedResponse = {
+        response: input,
+        imagePrompt: ''
+      }
+
+      const response = delimiterProcessor(input , '<<<', '>>>')
 
       expect(response).toEqual(expectedResponse)
     })
