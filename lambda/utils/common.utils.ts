@@ -27,9 +27,9 @@ export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[], sta
   // To prevent the AI from sending an image every text, the image send has a cooldown.
   let imageOnCooldown = false
 
-  //Filter out only the assistant message roles. These are the responses from GPT, rather than user or system.
+  // Filter out only the assistant message roles. These are the responses from GPT, rather than user or system.
   const assistantMessages = messages.filter(message => message.role === 'assistant')
-const imageCooldown = parseInt(imageCooldownString)
+  const imageCooldown = parseInt(imageCooldownString)
   // Check the last n assistant messages for the delimiter
   for (let i = assistantMessages.length - 1; i >= Math.max(assistantMessages.length - imageCooldown, 0); i--) {
     const currentMessage = assistantMessages[i]

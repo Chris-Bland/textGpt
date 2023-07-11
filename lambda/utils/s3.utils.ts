@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk'
-import axios from 'axios' 
+import axios from 'axios'
 
 const s3 = new AWS.S3()
 

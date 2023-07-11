@@ -31,7 +31,7 @@ export const envConfig = {
   bucketName: 'GeneratedImageBucket',
   model: 'gpt-3.5-turbo',
   imageResolution: '512x512',
-  testFromNumber: 'TEST123', 
+  testFromNumber: 'TEST123',
   imageCooldown: '3',
   startDelimiter: '<<<',
   endDelimiter: '>>>',

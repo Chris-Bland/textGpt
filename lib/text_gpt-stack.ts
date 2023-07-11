@@ -97,7 +97,6 @@ export class TextGptStack extends cdk.Stack {
     imageProcessor.addEnvironment(START_DELIMITER, envConfig.startDelimiter)
     imageProcessor.addEnvironment(END_DELIMITER, envConfig.endDelimiter)
 
-
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)
     sendSmsQueue.grantSendMessages(queryGpt)

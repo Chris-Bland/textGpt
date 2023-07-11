@@ -34,7 +34,7 @@ export const handler = async (event: any): Promise<any> => {
       const { conversationId, to, from, body } = JSON.parse(record.body) as Message
       const { response, imagePrompt } = delimiterProcessor(body, process.env.START_DELIMITER, process.env.END_DELIMITER)
 
-      //If there is no image prompt returned, throw an error. Transactions should not make it to the imageProcessor with no delimiter.
+      // If there is no image prompt returned, throw an error. Transactions should not make it to the imageProcessor with no delimiter.
       if (imagePrompt.length <= 0) {
         await sendMessageToSqs({ conversationId, to, from, body: response }, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
         throw new Error('ImageProcessor -- Image Prompt is missing or no end delimiter found')
@@ -46,7 +46,7 @@ export const handler = async (event: any): Promise<any> => {
       if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
         throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`)
       }
-      //Call DALL-E 2.0 with the imagePrompt to generate an imageUrl
+      // Call DALL-E 2.0 with the imagePrompt to generate an imageUrl
       const imageUrl = await generateImageUrl(imagePrompt, openai, imageResolution)
 
       const message = { conversationId, to, from, body: response, imageUrl }
