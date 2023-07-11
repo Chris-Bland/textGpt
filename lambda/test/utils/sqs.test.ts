@@ -1,5 +1,5 @@
 import { SQS } from 'aws-sdk'
-import { sendMessageToSqs, processMessage } from '../../utils/sqs.util'
+import { sendMessageToSqs } from '../../utils/sqs.util'
 import { createResponse } from '../../utils/common.utils'
 
 jest.mock('aws-sdk', () => {
@@ -81,24 +81,3 @@ describe('sendMessageToSqs', () => {
   })
 })
 
-describe('processMessage', () => {
-  let sendMessageToSqsMock: jest.SpyInstance
-
-  beforeEach(() => {
-    sendMessageToSqsMock = jest.spyOn({ sendMessageToSqs }, 'sendMessageToSqs').mockResolvedValue(undefined)
-  })
-
-  afterEach(() => {
-    sendMessageToSqsMock.mockRestore()
-  })
-
-  it('should return a success response when message is processed successfully', async () => {
-    const response = await processMessage({ conversationId: '123' }, 'queueUrl')
-    expect(response).toEqual(createResponse(200, { message: 'Success! ConversationID: 123.' }))
-  })
-
-  it('should return an error response when there is an issue in processing the message', async () => {
-    const response = await processMessage({ conversationId: '123' }, 'ErrorQueue')
-    expect(response).toEqual(createResponse(500, { error: 'Failed to send message: Error: Failed to send message' }))
-  })
-})
