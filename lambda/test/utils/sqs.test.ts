@@ -1,6 +1,5 @@
 import { SQS } from 'aws-sdk'
 import { sendMessageToSqs } from '../../utils/sqs.util'
-import { createResponse } from '../../utils/common.utils'
 
 jest.mock('aws-sdk', () => {
   return {

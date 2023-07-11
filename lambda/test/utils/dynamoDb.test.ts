@@ -26,8 +26,10 @@ describe('DynamoDB utility functions', () => {
   let dynamoDb: DynamoDB.DocumentClient
   const prompt = 'test-prompt'
   const senderNumber = '+18436405233'
+  const twilioNumber = '+14563337654'
   const tableName = 'exampleTable'
   const body = 'Hello'
+  const conversationId = '123'
 
   beforeEach(() => {
     dynamoDb = new AWS.DynamoDB.DocumentClient()
@@ -44,7 +46,7 @@ describe('DynamoDB utility functions', () => {
       }
 
       mockQuery.mockImplementation(() => ({ promise: async () => await Promise.resolve(mockResult) }))
-      const result = await fetchLatestMessages(senderNumber, tableName, body, prompt)
+      const result = await fetchLatestMessages(senderNumber, tableName, body, prompt, conversationId, twilioNumber)
 
       expect(mockQuery).toHaveBeenCalledWith({
         TableName: tableName,
@@ -73,7 +75,7 @@ describe('DynamoDB utility functions', () => {
           promise: async () => await Promise.reject(new Error('Fetching failed'))
         }
       })
-      await expect(fetchLatestMessages(senderNumber, tableName, body, prompt)).rejects.toThrow('Fetching failed')
+      await expect(fetchLatestMessages(senderNumber, tableName, body, prompt, conversationId, twilioNumber)).rejects.toThrow('Fetching failed')
     })
   })
 
@@ -82,15 +84,18 @@ describe('DynamoDB utility functions', () => {
       mockPut.mockImplementation(() => ({ promise: async () => await Promise.resolve({}) }))
 
       const params = {
-        TableName: 'exampleTable',
+        TableName: tableName,
         Item: {
-          conversationId: '123',
-          message: 'Hello, World!'
+          senderNumber: senderNumber,
+          TwilioNumber: twilioNumber,
+          input: 'Test',
+          response: 'Test',
+          conversationId: conversationId,
+          timestamp: '1234567',
         }
       }
-      const conversationId = '123'
 
-      await storeInDynamoDB(params, conversationId)
+      await storeInDynamoDB(params)
 
       expect(mockPut).toHaveBeenCalledWith(params)
     })
@@ -103,15 +108,18 @@ describe('DynamoDB utility functions', () => {
       })
 
       const params = {
-        TableName: 'exampleTable',
+        TableName: tableName,
         Item: {
-          conversationId: '123',
-          message: 'Hello, World!'
+          senderNumber: senderNumber,
+          TwilioNumber: twilioNumber,
+          input: 'Test',
+          response: 'Test',
+          conversationId: conversationId,
+          timestamp: '1234567',
         }
       }
-      const conversationId = '123'
 
-      await expect(storeInDynamoDB(params, conversationId)).rejects.toThrow('Storing failed')
+      await expect(storeInDynamoDB(params)).rejects.toThrow('Storing failed')
     })
   })
 })

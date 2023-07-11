@@ -1,5 +1,4 @@
 import { SQS } from 'aws-sdk'
-import { createResponse } from './common.utils'
 
 const sqs = new SQS()
 
