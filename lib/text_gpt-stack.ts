@@ -10,7 +10,7 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 
 import { envConfig } from './config'
-import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE, BUCKET_NAME } from './text-gpt.constants'
+import { SMS_QUEUE_URL, CONVERSATION_TABLE_NAME, SEND_SMS_QUEUE_URL, ERROR_QUEUE_URL, ERROR_QUEUE_ARN, MODEL, IMAGE_PROCESSOR_QUEUE_URL, IMAGE_RESOLUTION, ERROR_MESSAGE, BUCKET_NAME, TEST_FROM_NUMBER, IMAGE_COOLDOWN, START_DELIMITER, END_DELIMITER } from './text-gpt.constants'
 
 interface CustomNodejsFunctionOptions {
   memorySize: number
@@ -81,14 +81,22 @@ export class TextGptStack extends cdk.Stack {
     queryGpt.addEnvironment(CONVERSATION_TABLE_NAME, conversationTable.tableName)
     queryGpt.addEnvironment(MODEL, envConfig.model)
     queryGpt.addEnvironment(IMAGE_PROCESSOR_QUEUE_URL, imageProcessorQueue.queueUrl)
+    queryGpt.addEnvironment(IMAGE_COOLDOWN, envConfig.imageCooldown)
+    queryGpt.addEnvironment(START_DELIMITER, envConfig.startDelimiter)
+    queryGpt.addEnvironment(END_DELIMITER, envConfig.endDelimiter)
     sendSms.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     sendSms.addEnvironment(ERROR_QUEUE_ARN, errorSmsQueue.queueArn)
     sendSms.addEnvironment(ERROR_MESSAGE, envConfig.errorMessage)
+    sendSms.addEnvironment(TEST_FROM_NUMBER, envConfig.testFromNumber)
     imageProcessor.addEnvironment(ERROR_QUEUE_URL, errorSmsQueue.queueUrl)
     imageProcessor.addEnvironment(SEND_SMS_QUEUE_URL, sendSmsQueue.queueUrl)
     imageProcessor.addEnvironment(BUCKET_NAME, bucket.bucketName)
     imageProcessor.addEnvironment(IMAGE_RESOLUTION, envConfig.imageResolution)
+    imageProcessor.addEnvironment(IMAGE_RESOLUTION, envConfig.imageResolution)
+    imageProcessor.addEnvironment(START_DELIMITER, envConfig.startDelimiter)
+    imageProcessor.addEnvironment(END_DELIMITER, envConfig.endDelimiter)
+
 
     // Permissions
     receiveSmsQueue.grantSendMessages(receiveSms)

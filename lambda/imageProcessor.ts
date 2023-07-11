@@ -19,7 +19,7 @@ export const handler = async (event: any): Promise<any> => {
   try {
     const secrets = await getSecret('ChatGPTSecrets')
 
-    if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_RESOLUTION) {
+    if (!process.env.SEND_SMS_QUEUE_URL || !process.env.IMAGE_RESOLUTION || !process.env.START_DELIMITER || !process.env.END_DELIMITER) {
       throw new Error('Environment variable(s) not set')
     }
     if (!secrets || !secrets.OPENAI_API_KEY || !secrets.PROMPT) {
@@ -31,16 +31,14 @@ export const handler = async (event: any): Promise<any> => {
     const openai = new OpenAIApi(configuration)
 
     for (const record of event.Records) {
-      console.log(`Event Record: ${JSON.stringify(record.body)}`)
-
       const { conversationId, to, from, body } = JSON.parse(record.body) as Message
-      const { response, imagePrompt } = delimiterProcessor(body)
+      const { response, imagePrompt } = delimiterProcessor(body, process.env.START_DELIMITER, process.env.END_DELIMITER)
 
+      //If there is no image prompt returned, throw an error. Transactions should not make it to the imageProcessor with no delimiter.
       if (imagePrompt.length <= 0) {
         await sendMessageToSqs({ conversationId, to, from, body: response }, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
         throw new Error('ImageProcessor -- Image Prompt is missing or no end delimiter found')
       }
-      console.log(`ImagePrompt: ${imagePrompt}`)
 
       const imageResolution = process.env.IMAGE_RESOLUTION as CreateImageRequestSizeEnum
 
@@ -48,11 +46,10 @@ export const handler = async (event: any): Promise<any> => {
       if (!Object.values(CreateImageRequestSizeEnum).includes(imageResolution)) {
         throw new Error(`Invalid IMAGE_RESOLUTION value: ${imageResolution}`)
       }
-
+      //Call DALL-E 2.0 with the imagePrompt to generate an imageUrl
       const imageUrl = await generateImageUrl(imagePrompt, openai, imageResolution)
-      console.log(`ImageProcessor -- ImageUrl: ${imageUrl}`)
-      const message = { conversationId, to, from, body: response, imageUrl }
 
+      const message = { conversationId, to, from, body: response, imageUrl }
       // Send the message to the SQS queue to be sent as MMS
       await sendMessageToSqs(message, 'ImageProcessor', process.env.SEND_SMS_QUEUE_URL)
 
@@ -60,6 +57,6 @@ export const handler = async (event: any): Promise<any> => {
       await storeImageInS3(imageUrl, conversationId)
     }
   } catch (error) {
-    console.log(`ImageProcessor error: ${error}`)
+    console.error(`ImageProcessor error: ${error}`)
   }
 }

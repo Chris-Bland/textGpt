@@ -6,7 +6,6 @@ export const handler = async (event: { body: any }) => {
   try {
     const message = parseTwilioEventValues(event.body)
 
-    // Check if SMS_QUEUE_URL is defined
     if (!process.env.SMS_QUEUE_URL) {
       throw new Error('SMS_QUEUE_URL environment variable is not set')
     }

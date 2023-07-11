@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk'
-import axios from 'axios' // for downloading image from url, you might need to install this package
+import axios from 'axios' 
 
 const s3 = new AWS.S3()
 

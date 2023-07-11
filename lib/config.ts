@@ -31,6 +31,10 @@ export const envConfig = {
   bucketName: 'GeneratedImageBucket',
   model: 'gpt-3.5-turbo',
   imageResolution: '512x512',
+  testFromNumber: 'TEST123', 
+  imageCooldown: '3',
+  startDelimiter: '<<<',
+  endDelimiter: '>>>',
   errorMessage: 'Unfortunately we encountered an issue. Please try again. If this issue persists, please try again later.',
   github: {
     GITHUB_OWNER: 'Chris-Bland',

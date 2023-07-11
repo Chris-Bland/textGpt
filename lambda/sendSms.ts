@@ -3,11 +3,9 @@ import { getSecret } from './utils/secrets.util'
 import { createResponse } from './utils/common.utils'
 import { sendMessage } from './utils/twilio.utils'
 
-const TWILIO_TEST_NUMBER = 'TEST123'
-
 export const handler = async (event: { Records: any }) => {
   try {
-    if (!process.env.ERROR_MESSAGE) {
+    if (!process.env.ERROR_MESSAGE || !process.env.TEST_FROM_NUMBER) {
       throw new Error('Environment variable(s) not set')
     }
     const secrets = await getSecret('ChatGPTSecrets')
@@ -17,7 +15,7 @@ export const handler = async (event: { Records: any }) => {
     for (const record of event.Records) {
       const { conversationId, to, from, body, lambda, imageUrl } = JSON.parse(record.body)
 
-      if (to === TWILIO_TEST_NUMBER || from === TWILIO_TEST_NUMBER) {
+      if (to === process.env.TEST_FROM_NUMBER || from === process.env.TEST_FROM_NUMBER) {
         console.log(`${conversationId} -- SendSMS -- Test Successful!`)
         return createResponse(200, { message: 'Test Successful!' })
       }
@@ -28,7 +26,7 @@ export const handler = async (event: { Records: any }) => {
         return await sendMessage(client, to, from, process.env.ERROR_MESSAGE)
       }
 
-      // If no error, check if there is an imageUrl, this needs to be an MMS
+      // If no error, make sure there is a body and check if there is an imageUrl. If so, this needs to be an MMS
       if (body) {
         if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
         console.log('No ImageURL, sending as sms')

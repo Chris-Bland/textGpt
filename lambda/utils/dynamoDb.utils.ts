@@ -53,17 +53,17 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
       content: prompt
     }]
 
-    // If there are results, build out the messages array, add the prompt again, followed by the new user input
+    // If there are results, build out the messages array of User and Assistant messages, add the prompt again, followed by the new user input
     if ((result.Items != null) && result.Items.length > 0) {
       const conversationPairs: ChatCompletionRequestMessage[][] = []
-
+      //Create the array
       for (const item of result.Items) {
         conversationPairs.push([
           { role: ChatCompletionRequestMessageRoleEnum.User, content: item.input },
           { role: ChatCompletionRequestMessageRoleEnum.Assistant, content: item.response }
         ])
       }
-
+      //Grab the User and Assistant responses and reverse them to ensure they are in the order OpenAI requires, and the User/Assistant order is not changed
       const reversedPairs = conversationPairs.reverse()
       for (const pair of reversedPairs) {
         messages.push(pair[0], pair[1])
