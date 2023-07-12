@@ -61,7 +61,7 @@ Featuring over 40 comprehensive testcases, 100% of the testGpt codebase is cover
 
 ### Changing the OpenAI Model
 
-By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a different model, visit the [OpenAI Models Documentation](https://platform.openai.com/docs/models) to select a model, and then update the model name in the `queryGpt` Lambda function.
+By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a different model, visit the [OpenAI Models Documentation](https://platform.openai.com/docs/models) to select a model, and then update the model name in the `model` element of the config.ts at the stack level.
 
 ## Getting Started
 
