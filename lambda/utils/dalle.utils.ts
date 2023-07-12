@@ -7,8 +7,9 @@ export async function generateImageUrl (imagePrompt: string, openai: OpenAIApi, 
       n: 1,
       size: imageResolution
     })
-    const imageUrl = openAiResponse.data.data[0].url
-    if (imageUrl) return imageUrl
+    if (openAiResponse.data.data.length > 0 && openAiResponse.data.data[0].url) {
+      return openAiResponse.data.data[0].url;
+    }
     throw 'Invalid ImageUrl'
   } catch (error) {
     console.error(`Failure during Dall-E call: ${JSON.stringify(error)}`)
