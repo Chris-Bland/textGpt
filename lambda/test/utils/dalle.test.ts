@@ -1,7 +1,6 @@
 import { generateImageUrl } from '../../utils/dalle.utils';
 import { CreateImageRequestSizeEnum, OpenAIApi } from 'openai';
 
-// Mock OpenAIApi module
 jest.mock('openai');
 
 describe('generateImageUrl', () => {

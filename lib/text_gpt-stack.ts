@@ -28,8 +28,9 @@ export class TextGptStack extends cdk.Stack {
     // Lambdas
     const receiveSms = this.createLambdaFunction('ReceiveSmsHandler', envConfig.receiveSms)
     const queryGpt = this.createLambdaFunction('QueryGptHandler', envConfig.queryGpt)
-    const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms)
     const imageProcessor = this.createLambdaFunction('ImageProcessorHandler', envConfig.imageProcessor)
+    const sendSms = this.createLambdaFunction('SendSmsHandler', envConfig.sendSms)
+
 
     // S3
     const bucket = new s3.Bucket(this, envConfig.bucketName, {

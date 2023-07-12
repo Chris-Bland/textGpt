@@ -28,11 +28,6 @@ export async function fetchLatestMessages (senderNumber: string, tableName: stri
   if (!process.env.ERROR_QUEUE_URL) {
     throw new Error('ERROR_QUEUE_URL is not defined')
   }
-  // Define the messages array with the required OpenAI interfaces and add the original prompt in the beginning
-  const messages: ChatCompletionRequestMessage[] = [{
-    role: ChatCompletionRequestMessageRoleEnum.System,
-    content: prompt
-  }]
   try {
     // Query the latest 10 messages from the senderNumber
     const params: QueryParams = {

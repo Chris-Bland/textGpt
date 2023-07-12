@@ -29,10 +29,12 @@ export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[], sta
   // Filter out only the assistant message roles. These are the responses from GPT, rather than user or system.
   const assistantMessages = messages.filter(message => message.role === 'assistant')
   const imageCooldown = parseInt(imageCooldownString)
+  console.log(`ASSISTANT MESSAGES: ${JSON.stringify(assistantMessages)}`);
   // Check the last n assistant messages for the delimiter
   for (let i = assistantMessages.length - 1; i >= Math.max(assistantMessages.length - imageCooldown, 0); i--) {
     const currentMessage = assistantMessages[i]
     if (currentMessage && currentMessage.content && currentMessage.content.includes(startDelimiter)) {
+      console.log(`Delimiter detected`)
       imageOnCooldown = true
       break
     }

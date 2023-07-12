@@ -4,11 +4,11 @@ import { createResponse } from './utils/common.utils'
 
 export const handler = async (event: { body: any }) => {
   try {
-    const message = parseTwilioEventValues(event.body)
-
     if (!process.env.SMS_QUEUE_URL) {
       throw new Error('SMS_QUEUE_URL environment variable is not set')
     }
+    
+    const message = parseTwilioEventValues(event.body)
 
     // Process the message, place it on the SQS queue, and return the response
     await sendMessageToSqs(message, 'ReceiveSMS', process.env.SMS_QUEUE_URL)
