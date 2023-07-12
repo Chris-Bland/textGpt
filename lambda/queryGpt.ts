@@ -50,6 +50,7 @@ export const handler = async (event: any): Promise<any> => {
 
 
       let hasImagePrompt = openAIResponse.includes(startDelimiter)
+
       let sqsMessage = openAIResponse
       let ableToSendImage = true
       if (hasImagePrompt){ 
