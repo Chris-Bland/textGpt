@@ -5,6 +5,9 @@ import { type DynamoDB } from 'aws-sdk'
 jest.mock('aws-sdk', () => {
   const mockQuery = jest.fn()
   const mockPut = jest.fn()
+  const mockSendMessage = jest.fn().mockImplementation(() => ({
+    promise: jest.fn()
+  }))
 
   return {
     DynamoDB: {
@@ -15,12 +18,18 @@ jest.mock('aws-sdk', () => {
         }
       })
     },
+    SQS: jest.fn().mockImplementation(() => {
+      return {
+        sendMessage: mockSendMessage
+      }
+    }),
     mockQuery,
-    mockPut
+    mockPut,
+    mockSendMessage
   }
 })
 
-const { mockQuery, mockPut } = (AWS as any)
+const { mockSendMessage, mockQuery, mockPut } = (AWS as any)
 
 describe('DynamoDB utility functions', () => {
   let dynamoDb: DynamoDB.DocumentClient
@@ -33,6 +42,7 @@ describe('DynamoDB utility functions', () => {
 
   beforeEach(() => {
     dynamoDb = new AWS.DynamoDB.DocumentClient()
+    process.env.ERROR_QUEUE_URL = 'ERROR_QUEUE'
   })
   describe('fetchLatestMessages', () => {
     it('should fetch the latest messages from DynamoDB', async () => {
@@ -72,7 +82,7 @@ describe('DynamoDB utility functions', () => {
     it('should throw an error when fetching messages fails', async () => {
       mockQuery.mockImplementation(() => {
         return {
-          promise: async () => await Promise.reject(new Error('Fetching failed'))
+          promise: () => Promise.reject(new Error('Fetching failed'))
         }
       })
       await expect(fetchLatestMessages(senderNumber, tableName, body, prompt, conversationId, twilioNumber)).rejects.toThrow('Fetching failed')
@@ -103,10 +113,10 @@ describe('DynamoDB utility functions', () => {
     it('should throw an error when storing data fails', async () => {
       mockPut.mockImplementation(() => {
         return {
-          promise: async () => await Promise.reject(new Error('Storing failed'))
+          promise: () => Promise.reject(new Error('Storing failed'))
         }
       })
-
+    
       const params = {
         TableName: tableName,
         Item: {
@@ -118,7 +128,7 @@ describe('DynamoDB utility functions', () => {
           timestamp: '1234567',
         }
       }
-
+    
       await expect(storeInDynamoDB(params)).rejects.toThrow('Storing failed')
     })
   })
