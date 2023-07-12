@@ -1,12 +1,8 @@
 import { handler } from '../../sendSms'
-import { sendMessage } from '../../utils/twilio.utils'
 import { getSecret } from '../../utils/secrets.util'
 import { Twilio } from 'twilio';
 
 jest.mock('../../utils/secrets.util')
-jest.mock('twilio')
-
-const twilioMocked = Twilio as jest.MockedClass<typeof Twilio>;
 
 const messageCreateMock = jest.fn().mockResolvedValue({ sid: 'mockedSid' });
 
@@ -14,14 +10,14 @@ jest.mock('twilio', () => {
   return jest.fn().mockImplementation(() => {
     return {
       messages: {
-        create: jest.fn().mockResolvedValue({ sid: 'message_sid' }),
+        create: messageCreateMock,
       },
     };
   });
 });
 
-
 const mockGetSecret = getSecret as jest.MockedFunction<typeof getSecret>
+
 
 describe('sendSms Lambda Function', () => {
   beforeEach(() => {
@@ -44,7 +40,7 @@ describe('sendSms Lambda Function', () => {
           {
               "messageId": "57fb4982-328f-47be-a814-1abecb3eab09",
               "receiptHandle": "AQEBRw+DNyztKhjzBILeQShDZv2otHdJPdBBWIvAcvTH1pspNkBQuSPV6MmskLMwhNFMZhjpWlnJcRF8q5Fq52raDvVPbDFNoUbi7dBOkGAvAxBnAR+L9Xta2hW7k40EIJFowTTOa8XZuLkssamogtEjWibwfI1kpyi7v5Qk5klcJldO5Rkq2BmmLRhj1Qhi54jhNyzBbDP4pmvKmqF8zfB6W+vVHbUA01s21jahcd01JAnNd6FLiWWSofY7q9MwCUqKyD+ARUWAaugFhzSiQIwe5NacNE1haOjqZIFVQ7jp8onoNvA5wagOaXQdwF20PC/WtzZYLBs7mpktvrdWBf2QHLtlzVQQRHaU42LolMinBXDRumaZGMyuPTnmtm/GD1xExyi9lfmij/WTNdVmyEDutiWt+gBDk04o0+vAGFOVChnaHM1YbVCYmh0uRRt71iey",
-              "body": "{\"conversationId\":\"SM34dfcdadb698c99a1aa07ac9e1f90bce\",\"to\":\"+18449612720\",\"from\":\"+18436405233\",\"body\":\"Hey there! Yes, I'm receiving your messages loud and clear. I'm ready to chat and answer any questions you may have. Feel free to ask away! 😊false\",\"lambda\":\"QueryGPT\"}",
+              "body": "{\"conversationId\":\"SM34dfcdadb698c99a1aa07ac9e1f90bce\",\"to\":\"+18449612720\",\"from\":\"+18436405233\",\"body\":\"test message\",\"lambda\":\"QueryGPT\"}",
               "attributes": {
                   "ApproximateReceiveCount": "1",
                   "AWSTraceHeader": "Root=1-64adad7a-f102b181334abcd150efe404;Parent=5784f3be47e19a03;Sampled=0;Lineage=8c251606:0|b1863677:0",
@@ -60,18 +56,17 @@ describe('sendSms Lambda Function', () => {
           }
       ]
   }
-
     const response = await handler(event)
 
     expect(messageCreateMock).toHaveBeenCalledWith({
-      from: '1234567890',
-      to: '0987654321',
-      body: 'Test message'
+      from: '+18449612720',
+      to: '+18436405233',
+      body: 'test message',
     })
     expect(response).toEqual({
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Test Successful!' })
+      body: JSON.stringify({ message: 'SMS message sent successfully' })
     })
   })
 
@@ -117,10 +112,10 @@ describe('sendSms Lambda Function', () => {
     const response = await handler(event)
 
     expect(messageCreateMock).toHaveBeenCalledWith({
-      from: '1234567890',
-      to: '0987654321',
+      from: '0987654321',
+      to: '1234567890',
       body: 'Test message with image',
-      mediaUrl: ['https://example.com/image.jpg']
+      mediaUrl: 'https://example.com/image.jpg'
     })
     expect(response.statusCode).toEqual(200)
   })
@@ -158,7 +153,7 @@ describe('sendSms Lambda Function', () => {
             conversationId: 'conv1',
             to: '0987654321',
             from: '1234567890',
-            lambda: 'errorLambda',
+            lambda: 'errorLambda'
           }),
         },
       ],
@@ -167,9 +162,10 @@ describe('sendSms Lambda Function', () => {
     const response = await handler(event)
 
     expect(messageCreateMock).toHaveBeenCalledWith({
-      from: '1234567890',
-      to: '0987654321',
-      body: process.env.ERROR_MESSAGE
+      from: '0987654321',
+      to: '1234567890',
+      body: process.env.ERROR_MESSAGE,
+      mediaUrl: undefined
     })
     expect(response.statusCode).toEqual(200)
   })
