@@ -31,7 +31,7 @@ describe('generateImageUrl', () => {
     expect(result).toBe('https://example.com/image.jpg');
     expect(createImageMock).toHaveBeenCalledWith({
       prompt: JSON.stringify(imagePrompt),
-      num_images: 1,
+      n: 1,
       size: imageResolution
     });
   });
@@ -56,7 +56,7 @@ describe('generateImageUrl', () => {
     await expect(generateImageUrl(imagePrompt, openai, imageResolution)).rejects.toThrow('Invalid ImageUrl');
     expect(createImageMock).toHaveBeenCalledWith({
       prompt: JSON.stringify(imagePrompt),
-      num_images: 1,
+      n: 1,
       size: imageResolution
     });
   });
