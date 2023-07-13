@@ -65,11 +65,9 @@ export const handler = async (event: any): Promise<any> => {
       }
 
       const message = { conversationId, to, from, body: sqsMessage }
+      // If ableToSendImage is true, send the message to the Image Processor queue, otherwise send it to the Send SMS queue
       const queueUrl = ableToSendImage ? process.env.IMAGE_PROCESSOR_QUEUE_URL : process.env.SEND_SMS_QUEUE_URL
 
-      if (!queueUrl) {
-        throw new Error(' QueryGPT -- SQS Queue environment variable(s) not set')
-      }
       await sendMessageToSqs(message, 'QueryGPT', queueUrl)
       console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`)
 
