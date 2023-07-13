@@ -115,6 +115,7 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 3. Allow for `variations` and `edits` for previously generated images from Dall-E
 4. Replace GPT with a local, trained, LLaMA.cpp instance
 5. Replace Dall-E with a local, trained, Stable Diffusion instance
+6. Implement logging framework
 
 ## Acknowledgments
 
