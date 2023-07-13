@@ -19,7 +19,6 @@ export function parseTwilioEventValues (requestBody: string) {
 export async function sendMessage (client: any, to: string, from: string, body: string, imageUrl?: string) {
   const messageType = imageUrl ? 'MMS' : 'SMS'
   const mediaUrl = imageUrl || undefined
-  console.log(`sendMessage called with client: ${JSON.stringify(client)}`)
   try {
     const message = await client.messages.create({
       body,
