@@ -26,12 +26,12 @@ export const handler = async (event: { Records: any }) => {
         return await sendMessage(client, to, from, process.env.ERROR_MESSAGE)
       }
 
-      // If no error, make sure there is a body and check if there is an imageUrl. If so, this needs to be an MMS
-      if (body) {
+      // If no error, check if there is an imageUrl. If so, this needs to be an MMS
         if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
+        
         console.log(`${conversationId} -- SendSMS -- No ImageURL, sending as sms`)
         return await sendMessage(client, to, from, body)
-      }
+
     }
   } catch (error) {
     console.error(`SendSMS -- Error during Twilio setup: ${error}`)
