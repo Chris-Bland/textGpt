@@ -29,10 +29,13 @@ export const imageCooldownCheck = (messages: ChatCompletionRequestMessage[], sta
   // Filter out only the assistant message roles. These are the responses from GPT, rather than user or system.
   const assistantMessages = messages.filter(message => message.role === 'assistant')
   const imageCooldown = parseInt(imageCooldownString)
-  // Check the last n assistant messages for the delimiter
+  // Iterate backwards through the assistantMessages array. The iteration starts from the last element 
+  // and goes up to the 'imageCooldown' number of elements from the end or up to the beginning of the array, whichever is larger.
   for (let i = assistantMessages.length - 1; i >= Math.max(assistantMessages.length - imageCooldown, 0); i--) {
     const currentMessage = assistantMessages[i]
+    // Check if the current message and its content exist and if the content includes the startDelimiter.
     if (currentMessage && currentMessage.content && currentMessage.content.includes(startDelimiter)) {
+      //If so, the image is on cooldown, set the bool to true, and break out of the loop
       console.log(`Delimiter detected`)
       imageOnCooldown = true
       break
