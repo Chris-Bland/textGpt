@@ -104,9 +104,10 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 
 ## Monitoring and Troubleshooting
 
-1. Monitor the logs in AWS CloudWatch for any issues or to trace the flow of messages.
+1. Monitor the logs in AWS CloudWatch for any issues or to trace the flow of messages using the ConversationId
 2. If the Lambda functions are not able to access the secrets, verify that the IAM policy associated with the Lambda functions has the correct permissions and resource ARN.
 3. Ensure that your Twilio webhook is correctly configured to point to the `receiveSms` Lambda function URL.
+4. If no image is being generated, ensure the `imageCooldown` configuration is set, and an appropriate value (3 works nicely)
 
 ## Roadmap Items
 
