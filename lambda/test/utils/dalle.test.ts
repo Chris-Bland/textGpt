@@ -15,7 +15,6 @@ describe('generateImageUrl', () => {
       }
     };
 
-    // Mock the createImage function
     const createImageMock = jest.fn().mockResolvedValueOnce(mockResponse);
     const openaiMock = {
       createImage: createImageMock
@@ -42,7 +41,6 @@ describe('generateImageUrl', () => {
       }
     };
   
-    // Mock the createImage function
     const createImageMock = jest.fn().mockResolvedValueOnce(mockResponse);
     const openaiMock = {
       createImage: createImageMock

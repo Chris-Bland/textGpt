@@ -1,7 +1,6 @@
 import { createChatCompletion } from '../../utils/gpt.utils';
 import { OpenAIApi } from 'openai';
 
-// Mock OpenAIApi module
 jest.mock('openai');
 
 describe('createChatCompletion', () => {

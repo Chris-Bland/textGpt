@@ -60,7 +60,7 @@ export const handler = async (event: any): Promise<any> => {
         if (imageOnCooldown){
           ableToSendImage = false
           sqsMessage = response
-          console.log('Prompt detected, but image generation on cooldown.')
+          console.log(`${conversationId} -- QueryGPT -- Prompt detected, but image generation on cooldown.`)
         }
       }
 
@@ -68,7 +68,7 @@ export const handler = async (event: any): Promise<any> => {
       const queueUrl = ableToSendImage ? process.env.IMAGE_PROCESSOR_QUEUE_URL : process.env.SEND_SMS_QUEUE_URL
 
       if (!queueUrl) {
-        throw new Error('SQS Queue environment variable(s) not set')
+        throw new Error(' QueryGPT -- SQS Queue environment variable(s) not set')
       }
       await sendMessageToSqs(message, 'QueryGPT', queueUrl)
       console.log(`${conversationId} -- QueryGPT -- Successfully placed on SQS queue.`)

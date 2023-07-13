@@ -1,6 +1,5 @@
 import { handler } from '../../sendSms'
 import { getSecret } from '../../utils/secrets.util'
-import { Twilio } from 'twilio';
 
 jest.mock('../../utils/secrets.util')
 

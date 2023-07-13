@@ -45,7 +45,6 @@ describe('queryGPT Lambda Function', () => {
     mockFetchLatestMessages.mockResolvedValue([{role: 'system', content: 'test-prompt'}, {role: 'user', content: 'Test message'}])
     mockCreateChatCompletion.mockResolvedValue('Test response')
     
-    // Mock the sendMessageToSqs function to return a resolved Promise 
     mockSendMessageToSqs.mockResolvedValue(Promise.resolve())
   
     await handler(event)
@@ -83,7 +82,6 @@ describe('queryGPT Lambda Function', () => {
     mockDelimiterProcessor.mockReturnValue({ response: 'Test response', imagePrompt: 'test image prompt' })
     mockStoreInDynamoDB.mockResolvedValue(undefined)
     
-    // Mock the sendMessageToSqs function to return a resolved Promise 
     mockSendMessageToSqs.mockResolvedValue(Promise.resolve())
   
     await handler(event)

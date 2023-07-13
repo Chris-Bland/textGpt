@@ -29,12 +29,12 @@ export const handler = async (event: { Records: any }) => {
       // If no error, make sure there is a body and check if there is an imageUrl. If so, this needs to be an MMS
       if (body) {
         if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
-        console.log('No ImageURL, sending as sms')
+        console.log(`${conversationId} -- SendSMS -- No ImageURL, sending as sms`)
         return await sendMessage(client, to, from, body)
       }
     }
   } catch (error) {
-    console.error(`Error during Twilio setup: ${error}`)
+    console.error(`SendSMS -- Error during Twilio setup: ${error}`)
     return createResponse(500, { error: `Error during Twilio setup: ${error}` })
   }
   return createResponse(404, { error: 'No Records Found' })
