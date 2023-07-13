@@ -106,6 +106,14 @@ By default, TextGPT uses the `gpt-3.5-turbo` model from OpenAI. To use a differe
 2. If the Lambda functions are not able to access the secrets, verify that the IAM policy associated with the Lambda functions has the correct permissions and resource ARN.
 3. Ensure that your Twilio webhook is correctly configured to point to the `receiveSms` Lambda function URL.
 
+## Roadmap Items
+
+1. Implement a cache system to avoid unecessary calls to the DB for conversation history (redis or elasticache)
+2. Create an abstraction and mapping processor for the receiveSms lambda to become telephony provider agnostic
+3. Allow for `variations` and `edits` for previously generated images from Dall-E
+4. Replace GPT with a local, trained, LLaMA.cpp instance
+5. Replace Dall-E with a local, trained, Stable Diffusion instance
+
 ## Acknowledgments
 
 
