@@ -7,7 +7,7 @@ export const handler = async (event: { body: any }) => {
     if (!process.env.SMS_QUEUE_URL) {
       throw new Error('SMS_QUEUE_URL environment variable is not set')
     }
-    
+
     const message = parseTwilioEventValues(event.body)
 
     // Process the message, place it on the SQS queue, and return the response
@@ -28,4 +28,3 @@ export const handler = async (event: { body: any }) => {
     return createResponse(500, { error: `Failed to send message: ${error}` })
   }
 }
-  

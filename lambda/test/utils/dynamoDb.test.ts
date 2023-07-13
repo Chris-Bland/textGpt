@@ -82,7 +82,7 @@ describe('DynamoDB utility functions', () => {
     it('should throw an error when fetching messages fails', async () => {
       mockQuery.mockImplementation(() => {
         return {
-          promise: () => Promise.reject(new Error('Fetching failed'))
+          promise: async () => await Promise.reject(new Error('Fetching failed'))
         }
       })
       await expect(fetchLatestMessages(senderNumber, tableName, body, prompt, conversationId, twilioNumber)).rejects.toThrow('Fetching failed')
@@ -96,12 +96,12 @@ describe('DynamoDB utility functions', () => {
       const params = {
         TableName: tableName,
         Item: {
-          senderNumber: senderNumber,
+          senderNumber,
           TwilioNumber: twilioNumber,
           input: 'Test',
           response: 'Test',
-          conversationId: conversationId,
-          timestamp: '1234567',
+          conversationId,
+          timestamp: '1234567'
         }
       }
 
@@ -113,22 +113,22 @@ describe('DynamoDB utility functions', () => {
     it('should throw an error when storing data fails', async () => {
       mockPut.mockImplementation(() => {
         return {
-          promise: () => Promise.reject(new Error('Storing failed'))
+          promise: async () => await Promise.reject(new Error('Storing failed'))
         }
       })
-    
+
       const params = {
         TableName: tableName,
         Item: {
-          senderNumber: senderNumber,
+          senderNumber,
           TwilioNumber: twilioNumber,
           input: 'Test',
           response: 'Test',
-          conversationId: conversationId,
-          timestamp: '1234567',
+          conversationId,
+          timestamp: '1234567'
         }
       }
-    
+
       await expect(storeInDynamoDB(params)).rejects.toThrow('Storing failed')
     })
   })

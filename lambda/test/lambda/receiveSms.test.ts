@@ -20,7 +20,7 @@ describe('receiveSms Lambda Function', () => {
   it('should process the message successfully', async () => {
     const mockMessage = { conversationId: 'TEST1', body: 'Test message', from: '1234567890', to: '0987654321' }
     mockParseTwilioEventValues.mockReturnValue(mockMessage)
-    const queueURL = process.env.SMS_QUEUE_URL || 'default_value';
+    const queueURL = process.env.SMS_QUEUE_URL || 'default_value'
     await mockSendMessageToSqs(mockMessage, 'ReceiveSMS', queueURL)
     mockCreateResponse.mockReturnValue({
       statusCode: 200,
@@ -44,7 +44,7 @@ describe('receiveSms Lambda Function', () => {
     mockCreateResponse.mockReturnValue({
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: `Server configuration error: SMS_QUEUE_URL environment variable is not set` })
+      body: JSON.stringify({ error: 'Server configuration error: SMS_QUEUE_URL environment variable is not set' })
     })
 
     const event = { body: 'Test message' }

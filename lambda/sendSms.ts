@@ -4,7 +4,7 @@ import { createResponse } from './utils/common.utils'
 import { sendMessage } from './utils/twilio.utils'
 
 export const handler = async (event: { Records: any }) => {
-  console.log(JSON.stringify(event));
+  console.log(JSON.stringify(event))
   try {
     if (!process.env.ERROR_MESSAGE || !process.env.TEST_FROM_NUMBER) {
       throw new Error('Environment variable(s) not set')
@@ -27,11 +27,10 @@ export const handler = async (event: { Records: any }) => {
       }
 
       // If no error, check if there is an imageUrl. If so, this needs to be an MMS
-        if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
-        
-        console.log(`${conversationId} -- SendSMS -- No ImageURL, sending as sms`)
-        return await sendMessage(client, to, from, body)
+      if (imageUrl) return await sendMessage(client, to, from, body, imageUrl)
 
+      console.log(`${conversationId} -- SendSMS -- No ImageURL, sending as sms`)
+      return await sendMessage(client, to, from, body)
     }
   } catch (error) {
     console.error(`SendSMS -- Error during Twilio setup: ${error}`)

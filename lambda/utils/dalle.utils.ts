@@ -8,7 +8,7 @@ export async function generateImageUrl (imagePrompt: string, openai: OpenAIApi, 
       size: imageResolution
     })
     if (openAiResponse.data.data.length > 0 && openAiResponse.data.data[0].url) {
-      return openAiResponse.data.data[0].url;
+      return openAiResponse.data.data[0].url
     }
     throw 'Invalid ImageUrl'
   } catch (error) {

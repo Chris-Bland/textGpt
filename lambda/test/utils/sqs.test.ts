@@ -79,4 +79,3 @@ describe('sendMessageToSqs', () => {
     jest.resetModules()
   })
 })
-

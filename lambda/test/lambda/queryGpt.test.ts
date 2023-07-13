@@ -1,8 +1,7 @@
 import { handler } from '../../queryGpt'
 import { createChatCompletion } from '../../utils/gpt.utils'
-import { fetchLatestMessages } from '../../utils/dynamoDb.utils'
+import { fetchLatestMessages, storeInDynamoDB } from '../../utils/dynamoDb.utils'
 import { imageCooldownCheck, delimiterProcessor } from '../../utils/common.utils'
-import { storeInDynamoDB } from '../../utils/dynamoDb.utils'
 import { sendMessageToSqs } from '../../utils/sqs.util'
 import { getSecret } from '../../utils/secrets.util'
 
@@ -42,13 +41,13 @@ describe('queryGPT Lambda Function', () => {
   it('should process records successfully without image prompt', async () => {
     const event = { Records: [{ body: JSON.stringify({ conversationId: '123', to: '1234567890', from: '0987654321', body: 'Test message' }) }] }
     mockGetSecret.mockResolvedValue({ OPENAI_API_KEY: 'test-api-key', PROMPT: 'test-prompt' })
-    mockFetchLatestMessages.mockResolvedValue([{role: 'system', content: 'test-prompt'}, {role: 'user', content: 'Test message'}])
+    mockFetchLatestMessages.mockResolvedValue([{ role: 'system', content: 'test-prompt' }, { role: 'user', content: 'Test message' }])
     mockCreateChatCompletion.mockResolvedValue('Test response')
-    
+
     mockSendMessageToSqs.mockResolvedValue(Promise.resolve())
-  
+
     await handler(event)
-  
+
     expect(mockFetchLatestMessages).toHaveBeenCalled()
     expect(mockCreateChatCompletion).toHaveBeenCalled()
     expect(mockSendMessageToSqs).toHaveBeenCalled()
@@ -57,15 +56,15 @@ describe('queryGPT Lambda Function', () => {
   it('should process records successfully with image prompt', async () => {
     const event = { Records: [{ body: JSON.stringify({ conversationId: '123', to: '1234567890', from: '0987654321', body: 'Test message' }) }] }
     mockGetSecret.mockResolvedValue({ OPENAI_API_KEY: 'test-api-key', PROMPT: 'test-prompt' })
-    mockFetchLatestMessages.mockResolvedValue([{role: 'system', content: 'test-prompt'}, {role: 'user', content: 'Test message'}])
+    mockFetchLatestMessages.mockResolvedValue([{ role: 'system', content: 'test-prompt' }, { role: 'user', content: 'Test message' }])
     mockCreateChatCompletion.mockResolvedValue('Test response <<<test>>>')
     mockDelimiterProcessor.mockReturnValue({ response: 'Test response without prompt', imagePrompt: '' })
     mockStoreInDynamoDB.mockResolvedValue(undefined)
-    
+
     mockSendMessageToSqs.mockResolvedValue(Promise.resolve())
-  
+
     await handler(event)
-  
+
     expect(mockFetchLatestMessages).toHaveBeenCalled()
     expect(mockCreateChatCompletion).toHaveBeenCalled()
     expect(mockDelimiterProcessor).toHaveBeenCalled()
@@ -73,19 +72,19 @@ describe('queryGPT Lambda Function', () => {
     expect(mockSendMessageToSqs).toHaveBeenCalled()
     expect(mockStoreInDynamoDB).toHaveBeenCalled()
   })
-  
+
   it('should handle image cooldown', async () => {
     const event = { Records: [{ body: JSON.stringify({ conversationId: '123', to: '1234567890', from: '0987654321', body: 'Test message' }) }] }
     mockGetSecret.mockResolvedValue({ OPENAI_API_KEY: 'test-api-key', PROMPT: 'test-prompt' })
-    mockFetchLatestMessages.mockResolvedValue([{role: 'system', content: 'test-prompt'}, {role: 'user', content: 'Test message'},  {role: 'assistant', content: 'Test message<<<test>>>'}])
+    mockFetchLatestMessages.mockResolvedValue([{ role: 'system', content: 'test-prompt' }, { role: 'user', content: 'Test message' }, { role: 'assistant', content: 'Test message<<<test>>>' }])
     mockCreateChatCompletion.mockResolvedValue('Test response<<<test image prompt>>>')
     mockDelimiterProcessor.mockReturnValue({ response: 'Test response', imagePrompt: 'test image prompt' })
     mockStoreInDynamoDB.mockResolvedValue(undefined)
-    
+
     mockSendMessageToSqs.mockResolvedValue(Promise.resolve())
-  
+
     await handler(event)
-  
+
     expect(mockFetchLatestMessages).toHaveBeenCalled()
     expect(mockCreateChatCompletion).toHaveBeenCalled()
     expect(mockDelimiterProcessor).toHaveBeenCalled()
@@ -93,15 +92,15 @@ describe('queryGPT Lambda Function', () => {
     expect(mockSendMessageToSqs).toHaveBeenCalled()
     expect(mockStoreInDynamoDB).toHaveBeenCalled()
   })
-  
+
   it('should throw error when unable to retrieve OpenAI API Key from secrets', async () => {
     const event = { Records: [{ body: { conversationId: '123', to: '1234567890', from: '0987654321', body: 'Test message' } }] }
     mockGetSecret.mockResolvedValue(null)
     mockSendMessageToSqs.mockImplementation(() => { throw new Error() })
-    
+
     try {
       await handler(event)
-    } catch(e) {
+    } catch (e) {
       expect(mockSendMessageToSqs).toHaveBeenCalledWith(
         expect.objectContaining({ conversationId: '123' }),
         'QueryGPT',
@@ -109,7 +108,6 @@ describe('queryGPT Lambda Function', () => {
       )
     }
   })
-  
 
   it('should throw an error message if ERROR_QUEUE_URL environment variable is not set', async () => {
     delete process.env.ERROR_QUEUE_URL
@@ -119,7 +117,6 @@ describe('queryGPT Lambda Function', () => {
     expect(consoleSpy).toHaveBeenCalledWith('QueryGPT -- ERROR Queue Url variable missing.')
     consoleSpy.mockRestore()
   })
-  
 
   it('should throw error when CONVERSATION_TABLE_NAME environment variable is missing', async () => {
     delete process.env.CONVERSATION_TABLE_NAME
